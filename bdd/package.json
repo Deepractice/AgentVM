@@ -1,0 +1,18 @@
+{
+  "name": "@agentvm/bdd",
+  "private": true,
+  "version": "0.1.0",
+  "description": "BDD tests for AgentVM",
+  "type": "module",
+  "scripts": {
+    "test": "bun --bun node_modules/.bin/cucumber-js",
+    "test:tags": "bun --bun node_modules/.bin/cucumber-js --tags"
+  },
+  "devDependencies": {
+    "@agentvm/avm": "workspace:*",
+    "@agentvm/core": "workspace:*",
+    "@cucumber/cucumber": "^11.2.0",
+    "@types/node": "^24.9.2",
+    "typescript": "^5.9.3"
+  }
+}

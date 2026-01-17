@@ -1,0 +1,63 @@
+{
+  "name": "@agentvm/avm",
+  "version": "0.1.0",
+  "description": "AgentVM - AI Agent Virtual Machine HTTP Server",
+  "keywords": [
+    "agentvm",
+    "agent",
+    "ai",
+    "virtual-machine",
+    "http",
+    "server"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Deepractice/AgentVM.git",
+    "directory": "packages/avm"
+  },
+  "license": "MIT",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "avm": "./dist/cli/index.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "bun run build.ts",
+    "dev": "bun run src/cli/index.ts serve",
+    "start": "bun run dist/cli/index.js serve",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@agentvm/core": "workspace:*",
+    "@hono/node-server": "^1.14.3",
+    "commander": "^13.1.0",
+    "drizzle-orm": "^0.45.1",
+    "hono": "^4.7.10"
+  },
+  "devDependencies": {
+    "agentxjs": "^1.9.0",
+    "drizzle-kit": "^0.31.8"
+  },
+  "peerDependencies": {
+    "agentxjs": "^1.9.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}

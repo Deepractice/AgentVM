@@ -1,0 +1,41 @@
+# Lefthook configuration for AgentVM
+# https://lefthook.dev/configuration/
+
+commit-msg:
+  commands:
+    commitlint:
+      run: npx commitlint --edit {1}
+
+pre-commit:
+  commands:
+    format-fix:
+      glob: "*.{js,ts,json,md,yml,yaml}"
+      run: bun prettier --write {staged_files} && git add {staged_files}
+
+    lint-fix:
+      glob: "*.{js,ts}"
+      run: bun eslint --fix {staged_files} && git add {staged_files}
+
+pre-push:
+  parallel: false
+  commands:
+    install-check:
+      priority: 1
+      run: bun install --frozen-lockfile
+      fail_text: "Lockfile is outdated. Run 'bun install' to update it."
+
+    format:
+      priority: 2
+      run: bun format:check
+
+    lint:
+      priority: 3
+      run: bun lint
+
+    typecheck:
+      priority: 4
+      run: bun typecheck
+
+    test:
+      priority: 5
+      run: bun test
