@@ -1,21 +1,47 @@
-import { Routes, Route } from "react-router-dom";
-import LayoutSimple from "./components/Layout.simple";
-import TenantsPage from "./pages/Tenants";
-import ResourcesPage from "./pages/Resources";
-import AgentsPage from "./pages/Agents";
-import SettingsPage from "./pages/Settings";
+import { useEffect } from "react";
+import { useAppStore } from "@/stores/app";
+import { useTenants } from "@/hooks/useTenants";
+import { ActivityBar } from "@/components/layout/ActivityBar";
+import { TenantSwitcher } from "@/components/shared/TenantSwitcher";
+import SessionsPage from "@/pages/Sessions";
+import AgentsPage from "@/pages/Agents";
+import SettingsPage from "@/pages/Settings";
 
 function App() {
+  const { activeTab, currentTenant, setCurrentTenant, tenantSwitcherOpen } = useAppStore();
+  const { data: tenants } = useTenants();
+
+  // Auto-select first tenant if none selected
+  useEffect(() => {
+    if (!currentTenant && tenants && tenants.length > 0) {
+      setCurrentTenant(tenants[0]);
+    }
+  }, [currentTenant, tenants, setCurrentTenant]);
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case "sessions":
+        return <SessionsPage />;
+      case "agents":
+        return <AgentsPage />;
+      case "settings":
+        return <SettingsPage />;
+      default:
+        return <SessionsPage />;
+    }
+  };
+
   return (
-    <Routes>
-      <Route path="/" element={<LayoutSimple />}>
-        <Route index element={<TenantsPage />} />
-        <Route path="tenants" element={<TenantsPage />} />
-        <Route path="resources" element={<ResourcesPage />} />
-        <Route path="agents" element={<AgentsPage />} />
-        <Route path="settings" element={<SettingsPage />} />
-      </Route>
-    </Routes>
+    <div className="h-screen flex bg-[#1E1E1E]">
+      {/* Activity Bar */}
+      <ActivityBar />
+
+      {/* Main Content */}
+      <main className="flex-1 bg-[#252526]">{renderContent()}</main>
+
+      {/* Tenant Switcher Modal */}
+      {tenantSwitcherOpen && <TenantSwitcher />}
+    </div>
   );
 }
 
