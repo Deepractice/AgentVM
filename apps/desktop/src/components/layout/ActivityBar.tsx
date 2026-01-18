@@ -60,7 +60,10 @@ export function ActivityBar() {
   };
 
   return (
-    <div className="h-full w-[76px] bg-[var(--bg-secondary)] border-r border-[var(--border-light)] flex flex-col items-center pb-3 drag-region" style={{ paddingTop: 50 }}>
+    <div
+      className="h-full w-[76px] bg-[var(--bg-secondary)] border-r border-[var(--border-light)] flex flex-col items-center pb-3 drag-region"
+      style={{ paddingTop: 50 }}
+    >
       {/* Avatar */}
       <button
         className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--accent-primary)] to-orange-400 flex items-center justify-center text-white mb-4 group relative no-drag"
@@ -73,9 +76,7 @@ export function ActivityBar() {
       </button>
 
       {/* Top activities */}
-      <div className="flex flex-col gap-1">
-        {topActivities.map(renderButton)}
-      </div>
+      <div className="flex flex-col gap-1">{topActivities.map(renderButton)}</div>
 
       {/* Spacer */}
       <div className="flex-1" />
@@ -90,9 +91,7 @@ export function ActivityBar() {
       )}
 
       {/* Bottom activities */}
-      <div className="flex flex-col gap-1">
-        {bottomActivities.map(renderButton)}
-      </div>
+      <div className="flex flex-col gap-1">{bottomActivities.map(renderButton)}</div>
     </div>
   );
 }

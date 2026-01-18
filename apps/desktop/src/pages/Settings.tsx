@@ -47,7 +47,9 @@ function SettingsPage() {
             className="flex items-center gap-2 px-3 py-1.5 bg-[var(--bg-tertiary)] rounded-lg text-sm text-[var(--text-primary)] hover:bg-[var(--border-light)] transition-colors"
           >
             {currentLanguage.label}
-            <ChevronDown className={cn("w-4 h-4 transition-transform", languageOpen && "rotate-180")} />
+            <ChevronDown
+              className={cn("w-4 h-4 transition-transform", languageOpen && "rotate-180")}
+            />
           </button>
           {languageOpen && (
             <div className="absolute right-0 mt-1 w-32 bg-[var(--bg-card)] border border-[var(--border-light)] rounded-lg shadow-lg overflow-hidden z-10">

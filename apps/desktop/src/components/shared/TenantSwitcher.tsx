@@ -112,12 +112,7 @@ export function TenantSwitcher() {
               <Button type="submit" size="sm" disabled={createTenant.isPending}>
                 {createTenant.isPending ? "..." : "创建"}
               </Button>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => setIsCreating(false)}
-              >
+              <Button type="button" variant="ghost" size="sm" onClick={() => setIsCreating(false)}>
                 取消
               </Button>
             </form>
