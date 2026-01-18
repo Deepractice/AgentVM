@@ -12,7 +12,7 @@ import {
   type AvmClient,
   type Tenant,
   type DeleteResponse,
-} from "@agentvm/avm";
+} from "agentvm";
 
 interface TenantWorld {
   app: ReturnType<typeof createHttpApp>;

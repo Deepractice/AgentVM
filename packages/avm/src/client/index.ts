@@ -6,6 +6,9 @@
 
 import { commands, type Tenant } from "@agentvm/core";
 
+// Re-export types for client consumers
+export type { Tenant };
+
 /**
  * Client configuration
  */

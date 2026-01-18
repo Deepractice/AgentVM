@@ -5,7 +5,10 @@
  */
 
 import { serve } from "@hono/node-server";
+import { createLogger } from "commonxjs/logger";
 import { createHttpApp } from "../http/index.js";
+
+const logger = createLogger("agentvm/server");
 
 export interface ServerConfig {
   port: number;
@@ -22,6 +25,8 @@ export interface Server {
  * Create and start the AgentVM server
  */
 export async function createServer(config: ServerConfig): Promise<Server> {
+  logger.info("Starting AgentVM server", { port: config.port, host: config.host });
+
   const app = createHttpApp({
     dbPath: config.dbPath ?? `${config.dataDir ?? "."}/agentvm.db`,
     logging: true,
@@ -33,10 +38,15 @@ export async function createServer(config: ServerConfig): Promise<Server> {
     hostname: config.host ?? "0.0.0.0",
   });
 
-  console.log(`AgentVM server listening on http://${config.host ?? "0.0.0.0"}:${config.port}`);
-  console.log(`Health check: http://${config.host ?? "0.0.0.0"}:${config.port}/health`);
+  logger.info("AgentVM server started", {
+    url: `http://${config.host ?? "0.0.0.0"}:${config.port}`,
+    health: `http://${config.host ?? "0.0.0.0"}:${config.port}/health`,
+  });
 
   return {
-    close: () => server.close(),
+    close: () => {
+      logger.info("Shutting down AgentVM server");
+      server.close();
+    },
   };
 }

@@ -1,5 +1,5 @@
 {
-  "name": "@agentvm/avm",
+  "name": "agentvm",
   "version": "0.1.0",
   "description": "AgentVM - AI Agent Virtual Machine HTTP Server",
   "keywords": [
@@ -26,6 +26,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./client": {
+      "types": "./dist/client/index.d.ts",
+      "default": "./dist/client/index.js"
     }
   },
   "files": [
@@ -44,6 +48,7 @@
     "@agentvm/core": "workspace:*",
     "@hono/node-server": "^1.14.3",
     "commander": "^13.1.0",
+    "commonxjs": "^0.1.0",
     "drizzle-orm": "^0.45.1",
     "hono": "^4.7.10"
   },

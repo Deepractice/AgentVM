@@ -1,7 +1,20 @@
 import { app, BrowserWindow } from "electron";
-import { join } from "path";
+import { join, dirname } from "path";
+import { fileURLToPath } from "url";
+import { createServer, type Server } from "agentvm";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 let mainWindow: BrowserWindow | null = null;
+let server: Server | null = null;
+
+const API_PORT = 8080;
+
+// Start embedded API server
+async function startServer() {
+  server = await createServer({ port: API_PORT });
+}
 
 async function createWindow() {
   mainWindow = new BrowserWindow({
@@ -28,7 +41,10 @@ async function createWindow() {
   });
 }
 
-app.whenReady().then(createWindow);
+app.whenReady().then(async () => {
+  await startServer();
+  createWindow();
+});
 
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
@@ -39,5 +55,11 @@ app.on("window-all-closed", () => {
 app.on("activate", () => {
   if (mainWindow === null) {
     createWindow();
+  }
+});
+
+app.on("quit", () => {
+  if (server) {
+    server.close();
   }
 });

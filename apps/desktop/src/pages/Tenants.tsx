@@ -75,9 +75,7 @@ function TenantsPage() {
       </form>
 
       {/* Error message */}
-      {error && (
-        <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-md">{error}</div>
-      )}
+      {error && <div className="mb-4 p-3 bg-red-50 text-red-600 rounded-md">{error}</div>}
 
       {/* Tenant list */}
       {loading ? (

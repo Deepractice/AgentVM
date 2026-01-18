@@ -1,39 +1,41 @@
 /**
  * SQLite Tenant Repository
  *
- * Drizzle ORM implementation of TenantRepository for SQLite.
+ * Cross-runtime SQLite implementation of TenantRepository.
+ * Uses commonxjs/sqlite for Bun and Node.js compatibility.
  */
 
-import { drizzle } from "drizzle-orm/bun-sqlite";
-import { Database } from "bun:sqlite";
-import { eq } from "drizzle-orm";
+import { openDatabase, type Database } from "commonxjs/sqlite";
+import { createLogger } from "commonxjs/logger";
+import { generateId } from "commonxjs/id";
 import type {
   Tenant,
   CreateTenantRequest,
   UpdateTenantRequest,
   TenantRepository,
 } from "@agentvm/core";
-import { tenants } from "../db/schema.js";
+
+const logger = createLogger("agentvm/repository/tenant");
 
 /**
  * Generate a unique tenant ID
  */
 function generateTenantId(): string {
-  return `tenant_${crypto.randomUUID().replace(/-/g, "")}`;
+  return generateId("tenant");
 }
 
 /**
  * SQLite implementation of TenantRepository
  */
 export class SQLiteTenantRepository implements TenantRepository {
-  private db: ReturnType<typeof drizzle>;
+  private db: Database;
 
   constructor(dbPath: string = ":memory:") {
-    const sqlite = new Database(dbPath);
-    this.db = drizzle(sqlite);
+    logger.debug("Opening database", { dbPath });
+    this.db = openDatabase(dbPath);
 
     // Create table if not exists
-    sqlite.run(`
+    this.db.exec(`
       CREATE TABLE IF NOT EXISTS tenants (
         tenant_id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
@@ -42,6 +44,7 @@ export class SQLiteTenantRepository implements TenantRepository {
         updated_at INTEGER NOT NULL
       )
     `);
+    logger.debug("Database initialized");
   }
 
   async create(request: CreateTenantRequest): Promise<Tenant> {
@@ -54,35 +57,45 @@ export class SQLiteTenantRepository implements TenantRepository {
       updatedAt: now,
     };
 
-    await this.db.insert(tenants).values({
-      tenantId: tenant.tenantId,
-      name: tenant.name,
-      description: tenant.description,
-      createdAt: tenant.createdAt,
-      updatedAt: tenant.updatedAt,
-    });
+    const stmt = this.db.prepare(`
+      INSERT INTO tenants (tenant_id, name, description, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?)
+    `);
+    stmt.run(
+      tenant.tenantId,
+      tenant.name,
+      tenant.description ?? null,
+      tenant.createdAt,
+      tenant.updatedAt
+    );
 
+    logger.info("Tenant created", { tenantId: tenant.tenantId, name: tenant.name });
     return tenant;
   }
 
   async findById(tenantId: string): Promise<Tenant | null> {
-    const results = await this.db
-      .select()
-      .from(tenants)
-      .where(eq(tenants.tenantId, tenantId))
-      .limit(1);
+    const stmt = this.db.prepare(`
+      SELECT tenant_id, name, description, created_at, updated_at
+      FROM tenants WHERE tenant_id = ?
+    `);
+    const row = stmt.get(tenantId) as {
+      tenant_id: string;
+      name: string;
+      description: string | null;
+      created_at: number;
+      updated_at: number;
+    } | null;
 
-    if (results.length === 0) {
+    if (!row) {
       return null;
     }
 
-    const row = results[0];
     return {
-      tenantId: row.tenantId,
+      tenantId: row.tenant_id,
       name: row.name,
       description: row.description ?? undefined,
-      createdAt: row.createdAt,
-      updatedAt: row.updatedAt,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
     };
   }
 
@@ -93,19 +106,26 @@ export class SQLiteTenantRepository implements TenantRepository {
     }
 
     const now = Date.now();
-    const updates: Partial<typeof tenants.$inferInsert> = {
-      updatedAt: now,
-    };
+    const updates: string[] = ["updated_at = ?"];
+    const values: (string | number | null)[] = [now];
 
     if (request.name !== undefined) {
-      updates.name = request.name;
+      updates.push("name = ?");
+      values.push(request.name);
     }
     if (request.description !== undefined) {
-      updates.description = request.description;
+      updates.push("description = ?");
+      values.push(request.description ?? null);
     }
 
-    await this.db.update(tenants).set(updates).where(eq(tenants.tenantId, tenantId));
+    values.push(tenantId);
 
+    const stmt = this.db.prepare(`
+      UPDATE tenants SET ${updates.join(", ")} WHERE tenant_id = ?
+    `);
+    stmt.run(...values);
+
+    logger.info("Tenant updated", { tenantId });
     return this.findById(tenantId);
   }
 
@@ -115,19 +135,37 @@ export class SQLiteTenantRepository implements TenantRepository {
       return false;
     }
 
-    await this.db.delete(tenants).where(eq(tenants.tenantId, tenantId));
+    const stmt = this.db.prepare("DELETE FROM tenants WHERE tenant_id = ?");
+    stmt.run(tenantId);
+
+    logger.info("Tenant deleted", { tenantId });
     return true;
   }
 
   async list(): Promise<Tenant[]> {
-    const results = await this.db.select().from(tenants);
+    const stmt = this.db.prepare(`
+      SELECT tenant_id, name, description, created_at, updated_at
+      FROM tenants
+    `);
+    const rows = stmt.all() as Array<{
+      tenant_id: string;
+      name: string;
+      description: string | null;
+      created_at: number;
+      updated_at: number;
+    }>;
 
-    return results.map((row) => ({
-      tenantId: row.tenantId,
+    return rows.map((row) => ({
+      tenantId: row.tenant_id,
       name: row.name,
       description: row.description ?? undefined,
-      createdAt: row.createdAt,
-      updatedAt: row.updatedAt,
+      createdAt: row.created_at,
+      updatedAt: row.updated_at,
     }));
+  }
+
+  close(): void {
+    this.db.close();
+    logger.debug("Database closed");
   }
 }

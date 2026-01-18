@@ -2,7 +2,10 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import electron from "vite-plugin-electron";
 import renderer from "vite-plugin-electron-renderer";
-import { resolve } from "path";
+import { resolve, dirname } from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   plugins: [
@@ -14,7 +17,7 @@ export default defineConfig({
           build: {
             outDir: "dist-electron",
             rollupOptions: {
-              external: ["@agentvm/avm"],
+              external: ["agentvm"],
             },
           },
         },
@@ -24,6 +27,16 @@ export default defineConfig({
         onstart(args) {
           args.reload();
         },
+        vite: {
+          build: {
+            outDir: "dist-electron",
+            rollupOptions: {
+              output: {
+                format: "cjs",
+              },
+            },
+          },
+        },
       },
     ]),
     renderer(),
@@ -31,6 +44,8 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": resolve(__dirname, "src"),
+      "agentvm/client": resolve(__dirname, "../../packages/avm/src/client/index.ts"),
+      agentvm: resolve(__dirname, "../../packages/avm/src/index.ts"),
     },
   },
   build: {

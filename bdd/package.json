@@ -9,7 +9,7 @@
     "test:tags": "bun --bun node_modules/.bin/cucumber-js --tags"
   },
   "devDependencies": {
-    "@agentvm/avm": "workspace:*",
+    "agentvm": "workspace:*",
     "@agentvm/core": "workspace:*",
     "@cucumber/cucumber": "^11.2.0",
     "@types/node": "^24.9.2",

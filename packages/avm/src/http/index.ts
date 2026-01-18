@@ -5,9 +5,13 @@
  */
 
 import { Hono } from "hono";
-import { logger } from "hono/logger";
+import { cors } from "hono/cors";
+import { logger as honoLogger } from "hono/logger";
+import { createLogger } from "commonxjs/logger";
 import { createTenantRoutes } from "./tenants.js";
 import { createContext, type ContextConfig } from "../context.js";
+
+const logger = createLogger("agentvm/http");
 
 /**
  * HTTP application configuration
@@ -27,8 +31,9 @@ export function createHttpApp(config: HttpAppConfig = {}) {
   const ctx = createContext(config);
 
   // Middleware
+  app.use("*", cors());
   if (config.logging !== false) {
-    app.use("*", logger());
+    app.use("*", honoLogger());
   }
 
   // Health check
@@ -44,7 +49,7 @@ export function createHttpApp(config: HttpAppConfig = {}) {
 
   // Error handling
   app.onError((err, c) => {
-    console.error("HTTP Error:", err);
+    logger.error("HTTP Error", { error: err.message, stack: err.stack });
 
     if (err.name === "ZodError") {
       return c.json({ error: "Validation error", details: err }, 400);
