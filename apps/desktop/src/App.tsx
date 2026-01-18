@@ -5,6 +5,7 @@ import { ActivityBar } from "@/components/layout/ActivityBar";
 import { TenantSwitcher } from "@/components/shared/TenantSwitcher";
 import SessionsPage from "@/pages/Sessions";
 import AgentsPage from "@/pages/Agents";
+import ResourcesPage from "@/pages/Resources";
 import SettingsPage from "@/pages/Settings";
 
 function App() {
@@ -24,6 +25,8 @@ function App() {
         return <SessionsPage />;
       case "agents":
         return <AgentsPage />;
+      case "resources":
+        return <ResourcesPage />;
       case "settings":
         return <SettingsPage />;
       default:

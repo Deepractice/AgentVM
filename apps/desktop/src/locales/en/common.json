@@ -6,6 +6,7 @@
     "user": "User",
     "sessions": "Sessions",
     "agents": "Agents",
+    "resources": "Resources",
     "switchTenant": "Switch Tenant",
     "settings": "Settings"
   },
@@ -25,6 +26,16 @@
     "empty": "No agents yet",
     "create": "Create Agent",
     "selectOrCreate": "Select or create an agent"
+  },
+  "resources": {
+    "title": "Resources",
+    "installed": "Installed",
+    "market": "Market",
+    "empty": "No resources yet",
+    "all": "All",
+    "prompts": "Prompts",
+    "tools": "Tools",
+    "searchPlaceholder": "Search resources..."
   },
   "settings": {
     "title": "Settings",

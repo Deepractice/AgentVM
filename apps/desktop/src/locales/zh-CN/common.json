@@ -6,6 +6,7 @@
     "user": "用户",
     "sessions": "对话",
     "agents": "智能体",
+    "resources": "资源",
     "switchTenant": "切换租户",
     "settings": "设置"
   },
@@ -25,6 +26,16 @@
     "empty": "暂无智能体",
     "create": "创建智能体",
     "selectOrCreate": "选择或创建一个智能体"
+  },
+  "resources": {
+    "title": "资源",
+    "installed": "已安装",
+    "market": "市场",
+    "empty": "暂无资源",
+    "all": "全部",
+    "prompts": "提示词",
+    "tools": "工具",
+    "searchPlaceholder": "搜索资源..."
   },
   "settings": {
     "title": "设置",

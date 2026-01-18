@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import type { Tenant } from "agentvm/client";
 
-export type ActiveTab = "sessions" | "agents" | "settings";
+export type ActiveTab = "sessions" | "agents" | "resources" | "settings";
 
 interface AppState {
   // Current tab

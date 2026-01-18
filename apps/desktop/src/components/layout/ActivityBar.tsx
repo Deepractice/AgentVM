@@ -1,4 +1,4 @@
-import { CircleUser, MessageSquare, Bot, Building2, Settings } from "lucide-react";
+import { CircleUser, MessageSquare, Bot, Package, Building2, Settings } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { useAppStore, type ActiveTab } from "@/stores/app";
@@ -13,6 +13,7 @@ interface ActivityItem {
 const activities: ActivityItem[] = [
   { id: "sessions", icon: MessageSquare, labelKey: "nav.sessions", position: "top" },
   { id: "agents", icon: Bot, labelKey: "nav.agents", position: "top" },
+  { id: "resources", icon: Package, labelKey: "nav.resources", position: "top" },
   { id: "tenant", icon: Building2, labelKey: "nav.switchTenant", position: "bottom" },
   { id: "settings", icon: Settings, labelKey: "nav.settings", position: "bottom" },
 ];
