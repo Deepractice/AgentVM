@@ -1,25 +1,111 @@
 import { useState } from "react";
-import { Settings, Database, Key, Info } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { Settings, Database, Key, Info, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type SettingsSection = "general" | "storage" | "api" | "about";
 
-const settingsSections = [
-  { id: "general" as SettingsSection, icon: Settings, label: "通用设置" },
-  { id: "storage" as SettingsSection, icon: Database, label: "数据存储" },
-  { id: "api" as SettingsSection, icon: Key, label: "API 密钥" },
-  { id: "about" as SettingsSection, icon: Info, label: "关于" },
+const languages = [
+  { code: "zh-CN", label: "简体中文" },
+  { code: "en", label: "English" },
 ];
 
 function SettingsPage() {
+  const { t, i18n } = useTranslation();
   const [activeSection, setActiveSection] = useState<SettingsSection>("general");
+  const [languageOpen, setLanguageOpen] = useState(false);
+
+  const settingsSections = [
+    { id: "general" as SettingsSection, icon: Settings, label: t("settings.general") },
+    { id: "storage" as SettingsSection, icon: Database, label: t("settings.storage", "数据存储") },
+    { id: "api" as SettingsSection, icon: Key, label: t("settings.apiKeys", "API 密钥") },
+    { id: "about" as SettingsSection, icon: Info, label: t("settings.about") },
+  ];
+
+  const currentLanguage = languages.find((l) => l.code === i18n.language) || languages[0];
+
+  const handleLanguageChange = (code: string) => {
+    i18n.changeLanguage(code);
+    setLanguageOpen(false);
+  };
+
+  const renderGeneralSettings = () => (
+    <div className="space-y-6">
+      {/* Language Setting */}
+      <div className="flex items-center justify-between">
+        <div>
+          <div className="text-sm font-medium text-[var(--text-primary)]">
+            {t("settings.language")}
+          </div>
+          <div className="text-xs text-[var(--text-muted)] mt-0.5">
+            {t("settings.languageDesc", "选择界面显示语言")}
+          </div>
+        </div>
+        <div className="relative">
+          <button
+            onClick={() => setLanguageOpen(!languageOpen)}
+            className="flex items-center gap-2 px-3 py-1.5 bg-[var(--bg-tertiary)] rounded-lg text-sm text-[var(--text-primary)] hover:bg-[var(--border-light)] transition-colors"
+          >
+            {currentLanguage.label}
+            <ChevronDown className={cn("w-4 h-4 transition-transform", languageOpen && "rotate-180")} />
+          </button>
+          {languageOpen && (
+            <div className="absolute right-0 mt-1 w-32 bg-[var(--bg-card)] border border-[var(--border-light)] rounded-lg shadow-lg overflow-hidden z-10">
+              {languages.map((lang) => (
+                <button
+                  key={lang.code}
+                  onClick={() => handleLanguageChange(lang.code)}
+                  className={cn(
+                    "w-full px-3 py-2 text-sm text-left hover:bg-[var(--bg-tertiary)] transition-colors",
+                    lang.code === i18n.language
+                      ? "text-[var(--accent-primary)] bg-[var(--bg-tertiary)]"
+                      : "text-[var(--text-primary)]"
+                  )}
+                >
+                  {lang.label}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderAboutSettings = () => (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <span className="text-sm text-[var(--text-secondary)]">{t("settings.version")}</span>
+        <span className="text-sm text-[var(--text-primary)]">0.1.0</span>
+      </div>
+      <div className="flex items-center justify-between">
+        <span className="text-sm text-[var(--text-secondary)]">Electron</span>
+        <span className="text-sm text-[var(--text-primary)]">35.x</span>
+      </div>
+    </div>
+  );
+
+  const renderContent = () => {
+    switch (activeSection) {
+      case "general":
+        return renderGeneralSettings();
+      case "about":
+        return renderAboutSettings();
+      default:
+        return (
+          <p className="text-[var(--text-muted)]">
+            {t("common.developingFeature", "功能开发中...")}
+          </p>
+        );
+    }
+  };
 
   return (
     <div className="h-full flex">
       {/* Sidebar - Settings Nav */}
       <div className="w-[260px] bg-[var(--bg-secondary)] border-r border-[var(--border-light)] flex flex-col">
         <div className="p-3 border-b border-[var(--border-light)]">
-          <h2 className="text-sm font-medium text-[var(--text-primary)]">设置</h2>
+          <h2 className="text-sm font-medium text-[var(--text-primary)]">{t("settings.title")}</h2>
         </div>
 
         <div className="flex-1 overflow-y-auto p-2">
@@ -53,7 +139,7 @@ function SettingsPage() {
           </h1>
 
           <div className="bg-[var(--bg-card)] rounded-lg border border-[var(--border-light)] p-4">
-            <p className="text-[var(--text-muted)]">设置内容开发中...</p>
+            {renderContent()}
           </div>
         </div>
       </div>

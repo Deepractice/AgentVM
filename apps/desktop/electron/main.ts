@@ -22,8 +22,8 @@ async function createWindow() {
     height: 1240,
     minWidth: 900,
     minHeight: 700,
-    titleBarStyle: "hiddenInset", // macOS native title bar
-    trafficLightPosition: { x: 12, y: 12 },
+    titleBarStyle: "hidden", // macOS - traffic lights overlay on content
+    trafficLightPosition: { x: 15, y: 14 },
     webPreferences: {
       preload: join(__dirname, "preload.js"),
       contextIsolation: true,

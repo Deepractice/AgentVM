@@ -1,22 +1,24 @@
 import { CircleUser, MessageSquare, Bot, Building2, Settings } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { useAppStore, type ActiveTab } from "@/stores/app";
 
 interface ActivityItem {
   id: ActiveTab | "tenant";
   icon: React.ComponentType<{ className?: string }>;
-  label: string;
+  labelKey: string;
   position?: "top" | "bottom";
 }
 
 const activities: ActivityItem[] = [
-  { id: "sessions", icon: MessageSquare, label: "对话", position: "top" },
-  { id: "agents", icon: Bot, label: "智能体", position: "top" },
-  { id: "tenant", icon: Building2, label: "切换租户", position: "bottom" },
-  { id: "settings", icon: Settings, label: "设置", position: "bottom" },
+  { id: "sessions", icon: MessageSquare, labelKey: "nav.sessions", position: "top" },
+  { id: "agents", icon: Bot, labelKey: "nav.agents", position: "top" },
+  { id: "tenant", icon: Building2, labelKey: "nav.switchTenant", position: "bottom" },
+  { id: "settings", icon: Settings, labelKey: "nav.settings", position: "bottom" },
 ];
 
 export function ActivityBar() {
+  const { t } = useTranslation();
   const { activeTab, setActiveTab, currentTenant, openTenantSwitcher } = useAppStore();
 
   const topActivities = activities.filter((a) => a.position === "top");
@@ -33,6 +35,7 @@ export function ActivityBar() {
   const renderButton = (item: ActivityItem) => {
     const Icon = item.icon;
     const isActive = item.id !== "tenant" && activeTab === item.id;
+    const label = t(item.labelKey);
 
     return (
       <button
@@ -44,28 +47,28 @@ export function ActivityBar() {
             ? "bg-[var(--bg-tertiary)] text-[var(--text-primary)]"
             : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)]"
         )}
-        title={item.label}
+        title={label}
       >
-        <Icon className="w-5 h-5" />
+        <Icon className="w-6 h-6" />
 
         {/* Tooltip */}
         <div className="absolute left-full ml-2 px-2 py-1 bg-[var(--text-primary)] text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-          {item.label}
+          {label}
         </div>
       </button>
     );
   };
 
   return (
-    <div className="h-full w-[54px] bg-[var(--bg-secondary)] border-r border-[var(--border-light)] flex flex-col items-center pt-12 pb-3 drag-region">
+    <div className="h-full w-[76px] bg-[var(--bg-secondary)] border-r border-[var(--border-light)] flex flex-col items-center pb-3 drag-region" style={{ paddingTop: 50 }}>
       {/* Avatar */}
       <button
-        className="w-9 h-9 rounded-full bg-gradient-to-br from-[var(--accent-primary)] to-orange-400 flex items-center justify-center text-white mb-4 group relative no-drag"
-        title="用户"
+        className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--accent-primary)] to-orange-400 flex items-center justify-center text-white mb-4 group relative no-drag"
+        title={t("nav.user")}
       >
-        <CircleUser className="w-5 h-5" />
+        <CircleUser className="w-6 h-6" />
         <div className="absolute left-full ml-2 px-2 py-1 bg-[var(--text-primary)] text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-          用户
+          {t("nav.user")}
         </div>
       </button>
 

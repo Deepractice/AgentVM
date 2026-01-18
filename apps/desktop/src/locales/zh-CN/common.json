@@ -1,0 +1,58 @@
+{
+  "app": {
+    "name": "AgentVM"
+  },
+  "nav": {
+    "user": "用户",
+    "sessions": "对话",
+    "agents": "智能体",
+    "switchTenant": "切换租户",
+    "settings": "设置"
+  },
+  "sessions": {
+    "title": "对话",
+    "newChat": "新对话",
+    "today": "今天",
+    "yesterday": "昨天",
+    "earlier": "更早",
+    "empty": "暂无对话",
+    "startNew": "开始新对话"
+  },
+  "agents": {
+    "title": "智能体",
+    "empty": "暂无智能体",
+    "create": "创建智能体"
+  },
+  "settings": {
+    "title": "设置",
+    "general": "通用设置",
+    "storage": "数据存储",
+    "apiKeys": "API 密钥",
+    "language": "语言",
+    "languageDesc": "选择界面显示语言",
+    "theme": "主题",
+    "about": "关于",
+    "version": "版本"
+  },
+  "tenant": {
+    "switch": "切换租户",
+    "current": "当前租户",
+    "select": "选择租户",
+    "create": "创建租户",
+    "name": "租户名称",
+    "cancel": "取消",
+    "confirm": "确认"
+  },
+  "common": {
+    "loading": "加载中...",
+    "error": "出错了",
+    "retry": "重试",
+    "save": "保存",
+    "cancel": "取消",
+    "confirm": "确认",
+    "delete": "删除",
+    "edit": "编辑",
+    "search": "搜索",
+    "developingFeature": "功能开发中..."
+  }
+}

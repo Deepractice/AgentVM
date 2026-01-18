@@ -1,0 +1,58 @@
+{
+  "app": {
+    "name": "AgentVM"
+  },
+  "nav": {
+    "user": "User",
+    "sessions": "Sessions",
+    "agents": "Agents",
+    "switchTenant": "Switch Tenant",
+    "settings": "Settings"
+  },
+  "sessions": {
+    "title": "Sessions",
+    "newChat": "New Chat",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "earlier": "Earlier",
+    "empty": "No sessions yet",
+    "startNew": "Start a new conversation"
+  },
+  "agents": {
+    "title": "Agents",
+    "empty": "No agents yet",
+    "create": "Create Agent"
+  },
+  "settings": {
+    "title": "Settings",
+    "general": "General",
+    "storage": "Storage",
+    "apiKeys": "API Keys",
+    "language": "Language",
+    "languageDesc": "Select display language",
+    "theme": "Theme",
+    "about": "About",
+    "version": "Version"
+  },
+  "tenant": {
+    "switch": "Switch Tenant",
+    "current": "Current Tenant",
+    "select": "Select Tenant",
+    "create": "Create Tenant",
+    "name": "Tenant Name",
+    "cancel": "Cancel",
+    "confirm": "Confirm"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "retry": "Retry",
+    "save": "Save",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "edit": "Edit",
+    "search": "Search",
+    "developingFeature": "Feature in development..."
+  }
+}
