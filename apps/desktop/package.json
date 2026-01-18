@@ -5,7 +5,7 @@
   "type": "module",
   "main": "dist-electron/main.js",
   "scripts": {
-    "dev": "vite",
+    "dev": "pkill -f 'Electron' 2>/dev/null; lsof -ti:8080 | xargs kill 2>/dev/null; vite",
     "build": "tsc && vite build && electron-builder",
     "build:vite": "vite build",
     "preview": "vite preview",

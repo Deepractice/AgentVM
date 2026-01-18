@@ -39,7 +39,7 @@ export function ActivityBar() {
         key={item.id}
         onClick={() => handleClick(item)}
         className={cn(
-          "w-10 h-10 flex items-center justify-center rounded-lg transition-colors group relative",
+          "w-10 h-10 flex items-center justify-center rounded-lg transition-colors group relative no-drag",
           isActive
             ? "bg-[var(--bg-tertiary)] text-[var(--text-primary)]"
             : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)]"
@@ -57,10 +57,10 @@ export function ActivityBar() {
   };
 
   return (
-    <div className="h-full w-[54px] bg-[var(--bg-secondary)] border-r border-[var(--border-light)] flex flex-col items-center py-3">
+    <div className="h-full w-[54px] bg-[var(--bg-secondary)] border-r border-[var(--border-light)] flex flex-col items-center pt-12 pb-3 drag-region">
       {/* Avatar */}
       <button
-        className="w-9 h-9 rounded-full bg-gradient-to-br from-[var(--accent-primary)] to-orange-400 flex items-center justify-center text-white mb-4 group relative"
+        className="w-9 h-9 rounded-full bg-gradient-to-br from-[var(--accent-primary)] to-orange-400 flex items-center justify-center text-white mb-4 group relative no-drag"
         title="用户"
       >
         <CircleUser className="w-5 h-5" />

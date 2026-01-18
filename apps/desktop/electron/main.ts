@@ -18,8 +18,12 @@ async function startServer() {
 
 async function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 1200,
-    height: 800,
+    width: 1514,
+    height: 1240,
+    minWidth: 900,
+    minHeight: 700,
+    titleBarStyle: "hiddenInset", // macOS native title bar
+    trafficLightPosition: { x: 12, y: 12 },
     webPreferences: {
       preload: join(__dirname, "preload.js"),
       contextIsolation: true,
