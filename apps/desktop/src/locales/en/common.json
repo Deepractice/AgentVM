@@ -11,17 +11,20 @@
   },
   "sessions": {
     "title": "Sessions",
-    "newChat": "New Chat",
+    "new": "New Session",
+    "empty": "No sessions yet",
+    "selectOrCreate": "Select or create a session",
+    "inputPlaceholder": "Type a message...",
+    "send": "Send",
     "today": "Today",
     "yesterday": "Yesterday",
-    "earlier": "Earlier",
-    "empty": "No sessions yet",
-    "startNew": "Start a new conversation"
+    "earlier": "Earlier"
   },
   "agents": {
     "title": "Agents",
     "empty": "No agents yet",
-    "create": "Create Agent"
+    "create": "Create Agent",
+    "selectOrCreate": "Select or create an agent"
   },
   "settings": {
     "title": "Settings",
@@ -38,10 +41,13 @@
     "switch": "Switch Tenant",
     "current": "Current Tenant",
     "select": "Select Tenant",
+    "selectFirst": "Please select a tenant first",
     "create": "Create Tenant",
+    "createNew": "Create New Tenant",
     "name": "Tenant Name",
-    "cancel": "Cancel",
-    "confirm": "Confirm"
+    "namePlaceholder": "Tenant name",
+    "empty": "No tenants yet, please create one",
+    "confirmDelete": "Are you sure you want to delete this tenant?"
   },
   "common": {
     "loading": "Loading...",
@@ -50,6 +56,7 @@
     "save": "Save",
     "cancel": "Cancel",
     "confirm": "Confirm",
+    "create": "Create",
     "delete": "Delete",
     "edit": "Edit",
     "search": "Search",

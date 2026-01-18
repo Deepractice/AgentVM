@@ -1,15 +1,33 @@
+import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useAppStore } from "@/stores/app";
-import { MessageSquare, Plus } from "lucide-react";
+import { MessageSquare } from "lucide-react";
+import { SessionList } from "./SessionList";
+import { ChatArea } from "./ChatArea";
+
+// 临时：获取 session 名称的 mock 函数
+const getSessionName = (id: string): string => {
+  const names: Record<string, string> = {
+    "1": "项目讨论",
+    "2": "AI 助手",
+    "3": "产品需求分析",
+    "4": "技术方案评审",
+    "5": "周报总结",
+  };
+  return names[id] || "未知会话";
+};
 
 function SessionsPage() {
+  const { t } = useTranslation();
   const { currentTenant } = useAppStore();
+  const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
 
   if (!currentTenant) {
     return (
       <div className="h-full flex items-center justify-center text-[var(--text-muted)]">
         <div className="text-center">
           <MessageSquare className="w-12 h-12 mx-auto mb-4 opacity-50" />
-          <p>请先选择一个租户</p>
+          <p>{t("tenant.selectFirst")}</p>
         </div>
       </div>
     );
@@ -17,39 +35,25 @@ function SessionsPage() {
 
   return (
     <div className="h-full flex">
-      {/* Sidebar - Session List */}
-      <div className="w-[260px] bg-[var(--bg-secondary)] border-r border-[var(--border-light)] flex flex-col">
-        <div className="p-3 border-b border-[var(--border-light)]">
-          <h2 className="text-sm font-medium text-[var(--text-primary)]">对话</h2>
-        </div>
+      {/* Session List */}
+      <SessionList selectedId={selectedSessionId} onSelect={setSelectedSessionId} />
 
-        <div className="flex-1 overflow-y-auto p-2">
-          {/* Empty state */}
-          <div className="text-[var(--text-muted)] text-center py-8">
-            <MessageSquare className="w-8 h-8 mx-auto mb-2 opacity-50" />
-            <p className="text-sm">暂无对话</p>
+      {/* Chat Area */}
+      {selectedSessionId ? (
+        <ChatArea sessionId={selectedSessionId} sessionName={getSessionName(selectedSessionId)} />
+      ) : (
+        <div className="flex-1 flex items-center justify-center bg-[var(--bg-primary)]">
+          <div className="text-center">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[var(--bg-tertiary)] flex items-center justify-center">
+              <MessageSquare className="w-8 h-8 text-[var(--text-muted)]" />
+            </div>
+            <p className="text-lg text-[var(--text-primary)] mb-2">{t("sessions.selectOrCreate")}</p>
+            <p className="text-sm text-[var(--text-muted)]">
+              {t("tenant.current")}: {currentTenant.name}
+            </p>
           </div>
         </div>
-
-        {/* New Session Button */}
-        <div className="p-2 border-t border-[var(--border-light)]">
-          <button className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-[var(--accent-primary)] hover:bg-[var(--accent-hover)] text-white rounded-lg text-sm transition-colors">
-            <Plus className="w-4 h-4" />
-            新建对话
-          </button>
-        </div>
-      </div>
-
-      {/* Main Content - Chat Area */}
-      <div className="flex-1 flex items-center justify-center bg-[var(--bg-primary)]">
-        <div className="text-center">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[var(--bg-tertiary)] flex items-center justify-center">
-            <MessageSquare className="w-8 h-8 text-[var(--text-muted)]" />
-          </div>
-          <p className="text-lg text-[var(--text-primary)] mb-2">选择或创建一个对话</p>
-          <p className="text-sm text-[var(--text-muted)]">当前租户: {currentTenant.name}</p>
-        </div>
-      </div>
+      )}
     </div>
   );
 }

@@ -11,17 +11,20 @@
   },
   "sessions": {
     "title": "对话",
-    "newChat": "新对话",
+    "new": "新建对话",
+    "empty": "暂无对话",
+    "selectOrCreate": "选择或创建一个对话",
+    "inputPlaceholder": "输入消息...",
+    "send": "发送",
     "today": "今天",
     "yesterday": "昨天",
-    "earlier": "更早",
-    "empty": "暂无对话",
-    "startNew": "开始新对话"
+    "earlier": "更早"
   },
   "agents": {
     "title": "智能体",
     "empty": "暂无智能体",
-    "create": "创建智能体"
+    "create": "创建智能体",
+    "selectOrCreate": "选择或创建一个智能体"
   },
   "settings": {
     "title": "设置",
@@ -38,10 +41,13 @@
     "switch": "切换租户",
     "current": "当前租户",
     "select": "选择租户",
+    "selectFirst": "请先选择一个租户",
     "create": "创建租户",
+    "createNew": "创建新租户",
     "name": "租户名称",
-    "cancel": "取消",
-    "confirm": "确认"
+    "namePlaceholder": "租户名称",
+    "empty": "暂无租户，请创建一个",
+    "confirmDelete": "确定删除这个租户吗？"
   },
   "common": {
     "loading": "加载中...",
@@ -50,6 +56,7 @@
     "save": "保存",
     "cancel": "取消",
     "confirm": "确认",
+    "create": "创建",
     "delete": "删除",
     "edit": "编辑",
     "search": "搜索",

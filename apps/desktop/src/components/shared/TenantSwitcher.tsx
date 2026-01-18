@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { X, Plus, Check } from "lucide-react";
 import { useAppStore } from "@/stores/app";
 import { useTenants, useCreateTenant, useDeleteTenant } from "@/hooks/useTenants";
@@ -6,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 export function TenantSwitcher() {
+  const { t } = useTranslation();
   const { currentTenant, setCurrentTenant, closeTenantSwitcher } = useAppStore();
   const { data: tenants, isLoading } = useTenants();
   const createTenant = useCreateTenant();
@@ -36,7 +38,7 @@ export function TenantSwitcher() {
 
   const handleDelete = async (tenantId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (!confirm("确定删除这个租户吗？")) return;
+    if (!confirm(t("tenant.confirmDelete"))) return;
 
     try {
       await deleteTenant.mutateAsync(tenantId);
@@ -53,7 +55,7 @@ export function TenantSwitcher() {
       <div className="bg-[var(--bg-card)] rounded-xl w-96 max-h-[80vh] flex flex-col shadow-xl border border-[var(--border-light)]">
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border-light)]">
-          <h2 className="text-base font-medium text-[var(--text-primary)]">切换租户</h2>
+          <h2 className="text-base font-medium text-[var(--text-primary)]">{t("tenant.switch")}</h2>
           <button
             onClick={closeTenantSwitcher}
             className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
@@ -65,9 +67,9 @@ export function TenantSwitcher() {
         {/* Tenant List */}
         <div className="flex-1 overflow-y-auto p-2">
           {isLoading ? (
-            <div className="text-[var(--text-muted)] text-center py-4">加载中...</div>
+            <div className="text-[var(--text-muted)] text-center py-4">{t("common.loading")}</div>
           ) : tenants?.length === 0 ? (
-            <div className="text-[var(--text-muted)] text-center py-4">暂无租户，请创建一个</div>
+            <div className="text-[var(--text-muted)] text-center py-4">{t("tenant.empty")}</div>
           ) : (
             <div className="space-y-1">
               {tenants?.map((tenant) => (
@@ -105,15 +107,15 @@ export function TenantSwitcher() {
               <Input
                 value={newTenantName}
                 onChange={(e) => setNewTenantName(e.target.value)}
-                placeholder="租户名称"
+                placeholder={t("tenant.namePlaceholder")}
                 className="flex-1"
                 autoFocus
               />
               <Button type="submit" size="sm" disabled={createTenant.isPending}>
-                {createTenant.isPending ? "..." : "创建"}
+                {createTenant.isPending ? "..." : t("common.create")}
               </Button>
               <Button type="button" variant="ghost" size="sm" onClick={() => setIsCreating(false)}>
-                取消
+                {t("common.cancel")}
               </Button>
             </form>
           ) : (
@@ -123,7 +125,7 @@ export function TenantSwitcher() {
               onClick={() => setIsCreating(true)}
             >
               <Plus className="w-4 h-4 mr-2" />
-              创建新租户
+              {t("tenant.createNew")}
             </Button>
           )}
         </div>
