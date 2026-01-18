@@ -22,7 +22,7 @@ export interface TenantContext {
 export const tenantCommands = {
   "tenant.create": defineCommand({
     description: "Create a new tenant",
-    http: { method: "POST", path: "/v1/tenants" },
+    http: { method: "POST", path: "/v1/tenants/create" },
     input: z.object({
       name: z.string().min(1),
       description: z.string().optional(),
@@ -34,7 +34,7 @@ export const tenantCommands = {
 
   "tenant.get": defineCommand({
     description: "Get a tenant by ID",
-    http: { method: "GET", path: "/v1/tenants/:tenantId" },
+    http: { method: "POST", path: "/v1/tenants/get" },
     input: z.object({
       tenantId: z.string().min(1),
     }),
@@ -45,7 +45,7 @@ export const tenantCommands = {
 
   "tenant.list": defineCommand({
     description: "List all tenants",
-    http: { method: "GET", path: "/v1/tenants" },
+    http: { method: "GET", path: "/v1/tenants/list" },
     input: z.object({}),
     handler: async (_input, ctx: TenantContext): Promise<Tenant[]> => {
       return ctx.tenantRepo.list();
@@ -54,7 +54,7 @@ export const tenantCommands = {
 
   "tenant.update": defineCommand({
     description: "Update a tenant",
-    http: { method: "PUT", path: "/v1/tenants/:tenantId" },
+    http: { method: "POST", path: "/v1/tenants/update" },
     input: z.object({
       tenantId: z.string().min(1),
       name: z.string().min(1).optional(),
@@ -68,7 +68,7 @@ export const tenantCommands = {
 
   "tenant.delete": defineCommand({
     description: "Delete a tenant",
-    http: { method: "DELETE", path: "/v1/tenants/:tenantId" },
+    http: { method: "POST", path: "/v1/tenants/delete" },
     input: z.object({
       tenantId: z.string().min(1),
     }),

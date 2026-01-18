@@ -9,6 +9,7 @@ import { cors } from "hono/cors";
 import { logger as honoLogger } from "hono/logger";
 import { createLogger } from "commonxjs/logger";
 import { createTenantRoutes } from "./tenants.js";
+import { createRegistryRoutes } from "./registry.js";
 import { createContext, type ContextConfig } from "../context.js";
 
 const logger = createLogger("agentvm/http");
@@ -46,6 +47,7 @@ export function createHttpApp(config: HttpAppConfig = {}) {
 
   // Mount routes
   app.route("/v1/tenants", createTenantRoutes(ctx));
+  app.route("/v1/registry", createRegistryRoutes(ctx));
 
   // Error handling
   app.onError((err, c) => {

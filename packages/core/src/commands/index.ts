@@ -19,11 +19,17 @@ export type {
 export { tenantCommands } from "../tenant/commands.js";
 export type { TenantContext, TenantCommands } from "../tenant/commands.js";
 
+// Registry commands
+export { registryCommands } from "../resource/commands.js";
+export type { RegistryContext, RegistryCommands } from "../resource/commands.js";
+
 // Aggregated commands
 import { tenantCommands } from "../tenant/commands.js";
+import { registryCommands } from "../resource/commands.js";
 
 export const commands = {
   ...tenantCommands,
+  ...registryCommands,
 };
 
 export type Commands = typeof commands;

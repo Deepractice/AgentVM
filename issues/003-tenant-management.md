@@ -75,11 +75,45 @@ packages/avm/src/
 ### Phase 3: HTTP API (later)
 
 ```
-POST   /v1/tenants          # create
-GET    /v1/tenants          # list
-GET    /v1/tenants/:id      # findById
-PUT    /v1/tenants/:id      # update
-DELETE /v1/tenants/:id      # delete
+POST /v1/tenants/create     # 创建租户
+POST /v1/tenants/get        # 获取租户
+POST /v1/tenants/update     # 更新租户
+POST /v1/tenants/delete     # 删除租户
+GET  /v1/tenants/list       # 列出租户
+```
+
+#### 请求示例
+
+```http
+POST /v1/tenants/create
+Content-Type: application/json
+
+{ "name": "sean", "description": "Sean's workspace" }
+```
+
+```http
+POST /v1/tenants/get
+Content-Type: application/json
+
+{ "tenantId": "tenant-123" }
+```
+
+```http
+POST /v1/tenants/update
+Content-Type: application/json
+
+{ "tenantId": "tenant-123", "name": "sean-updated" }
+```
+
+```http
+POST /v1/tenants/delete
+Content-Type: application/json
+
+{ "tenantId": "tenant-123" }
+```
+
+```http
+GET /v1/tenants/list
 ```
 
 ---

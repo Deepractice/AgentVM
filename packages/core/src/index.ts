@@ -15,8 +15,21 @@ export type {
   TenantRepository,
 } from "./tenant/index.js";
 
+// Resource types
+export type {
+  Resource,
+  PublishResourceRequest,
+  ResolveResourceRequest,
+  ResolveResourceResponse,
+  ResourceQuery,
+  ResourceListResponse,
+  ExistsResponse,
+  DeleteResourceResponse,
+  ResourceRepository,
+} from "./resource/index.js";
+
 // Commands
-export { defineCommand, commands, tenantCommands } from "./commands/index.js";
+export { defineCommand, commands, tenantCommands, registryCommands } from "./commands/index.js";
 
 export type {
   Command,
@@ -26,6 +39,8 @@ export type {
   Commands,
   TenantContext,
   TenantCommands,
+  RegistryContext,
+  RegistryCommands,
   HttpMethod,
   HttpMeta,
 } from "./commands/index.js";

@@ -4,10 +4,25 @@
  * Type-safe HTTP client generated from command definitions.
  */
 
-import { commands, type Tenant } from "@agentvm/core";
+import {
+  commands,
+  type Tenant,
+  type Resource,
+  type ResolveResourceResponse,
+  type ResourceListResponse,
+  type ExistsResponse,
+  type DeleteResourceResponse,
+} from "@agentvm/core";
 
 // Re-export types for client consumers
-export type { Tenant };
+export type {
+  Tenant,
+  Resource,
+  ResolveResourceResponse,
+  ResourceListResponse,
+  ExistsResponse,
+  DeleteResourceResponse,
+};
 
 /**
  * Client configuration
@@ -93,6 +108,43 @@ async function makeRequest<T>(
 }
 
 /**
+ * Make a GET request with query string
+ */
+async function makeGetRequest<T>(
+  config: ClientConfig,
+  path: string,
+  query: Record<string, unknown> = {}
+): Promise<T> {
+  const fetchFn = config.fetch ?? fetch;
+
+  // Build query string
+  const params = new URLSearchParams();
+  for (const [key, value] of Object.entries(query)) {
+    if (value !== undefined && value !== null) {
+      params.append(key, String(value));
+    }
+  }
+  const queryString = params.toString();
+  const url = `${config.baseUrl}${path}${queryString ? `?${queryString}` : ""}`;
+
+  const options: RequestInit = {
+    method: "GET",
+    headers: {
+      ...config.headers,
+    },
+  };
+
+  const response = await fetchFn(url, options);
+
+  if (!response.ok) {
+    const error = await response.text();
+    throw new Error(`HTTP ${response.status}: ${error}`);
+  }
+
+  return response.json() as Promise<T>;
+}
+
+/**
  * Delete response type
  */
 export interface DeleteResponse {
@@ -115,10 +167,39 @@ export interface TenantClient {
 }
 
 /**
+ * Registry client interface
+ */
+export interface RegistryClient {
+  publish: (input: {
+    locator: string;
+    content: string;
+    description?: string;
+    tags?: string[];
+  }) => Promise<Resource>;
+  link: (input: {
+    locator: string;
+    content: string;
+    description?: string;
+    tags?: string[];
+  }) => Promise<Resource>;
+  resolve: (input: { locator: string }) => Promise<ResolveResourceResponse | null>;
+  exists: (input: { locator: string }) => Promise<ExistsResponse>;
+  delete: (input: { locator: string }) => Promise<DeleteResourceResponse>;
+  search: (input?: {
+    domain?: string;
+    type?: string;
+    name?: string;
+    limit?: number;
+    offset?: number;
+  }) => Promise<ResourceListResponse>;
+}
+
+/**
  * Full client interface
  */
 export interface AvmClient {
   tenant: TenantClient;
+  registry: RegistryClient;
 }
 
 /**
@@ -173,6 +254,40 @@ export function createClient(config: ClientConfig): AvmClient {
           cmd["tenant.delete"].http.path,
           input
         ),
+    },
+    registry: {
+      publish: (input) =>
+        makeRequest<Resource>(
+          config,
+          cmd["registry.publish"].http.method,
+          cmd["registry.publish"].http.path,
+          input
+        ),
+      link: (input) =>
+        makeRequest<Resource>(
+          config,
+          cmd["registry.link"].http.method,
+          cmd["registry.link"].http.path,
+          input
+        ),
+      resolve: (input) =>
+        makeRequest<ResolveResourceResponse | null>(
+          config,
+          cmd["registry.resolve"].http.method,
+          cmd["registry.resolve"].http.path,
+          input
+        ),
+      exists: (input) =>
+        makeGetRequest<ExistsResponse>(config, cmd["registry.exists"].http.path, input),
+      delete: (input) =>
+        makeRequest<DeleteResourceResponse>(
+          config,
+          cmd["registry.delete"].http.method,
+          cmd["registry.delete"].http.path,
+          input
+        ),
+      search: (input = {}) =>
+        makeGetRequest<ResourceListResponse>(config, cmd["registry.search"].http.path, input),
     },
   };
 }

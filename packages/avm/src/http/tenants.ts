@@ -1,7 +1,7 @@
 /**
  * Tenant HTTP Routes
  *
- * HTTP endpoints for tenant management, using tenant commands.
+ * RPC-style HTTP endpoints for tenant management.
  */
 
 import { Hono } from "hono";
@@ -9,30 +9,23 @@ import { tenantCommands } from "@agentvm/core";
 import type { AppContext } from "../context.js";
 
 /**
- * Create tenant routes
+ * Create tenant routes (RPC style)
  */
 export function createTenantRoutes(ctx: AppContext) {
   const app = new Hono();
 
-  // POST /v1/tenants - Create a tenant
-  app.post("/", async (c) => {
+  // POST /v1/tenants/create - Create a tenant
+  app.post("/create", async (c) => {
     const body = await c.req.json();
     const input = tenantCommands["tenant.create"].input.parse(body);
     const result = await tenantCommands["tenant.create"].handler(input, ctx);
     return c.json(result, 201);
   });
 
-  // GET /v1/tenants - List all tenants
-  app.get("/", async (c) => {
-    const input = tenantCommands["tenant.list"].input.parse({});
-    const result = await tenantCommands["tenant.list"].handler(input, ctx);
-    return c.json(result);
-  });
-
-  // GET /v1/tenants/:id - Get a tenant by ID
-  app.get("/:id", async (c) => {
-    const tenantId = c.req.param("id");
-    const input = tenantCommands["tenant.get"].input.parse({ tenantId });
+  // POST /v1/tenants/get - Get a tenant by ID
+  app.post("/get", async (c) => {
+    const body = await c.req.json();
+    const input = tenantCommands["tenant.get"].input.parse(body);
     const result = await tenantCommands["tenant.get"].handler(input, ctx);
 
     if (!result) {
@@ -42,14 +35,17 @@ export function createTenantRoutes(ctx: AppContext) {
     return c.json(result);
   });
 
-  // PUT /v1/tenants/:id - Update a tenant
-  app.put("/:id", async (c) => {
-    const tenantId = c.req.param("id");
+  // GET /v1/tenants/list - List all tenants
+  app.get("/list", async (c) => {
+    const input = tenantCommands["tenant.list"].input.parse({});
+    const result = await tenantCommands["tenant.list"].handler(input, ctx);
+    return c.json(result);
+  });
+
+  // POST /v1/tenants/update - Update a tenant
+  app.post("/update", async (c) => {
     const body = await c.req.json();
-    const input = tenantCommands["tenant.update"].input.parse({
-      tenantId,
-      ...body,
-    });
+    const input = tenantCommands["tenant.update"].input.parse(body);
     const result = await tenantCommands["tenant.update"].handler(input, ctx);
 
     if (!result) {
@@ -59,10 +55,10 @@ export function createTenantRoutes(ctx: AppContext) {
     return c.json(result);
   });
 
-  // DELETE /v1/tenants/:id - Delete a tenant
-  app.delete("/:id", async (c) => {
-    const tenantId = c.req.param("id");
-    const input = tenantCommands["tenant.delete"].input.parse({ tenantId });
+  // POST /v1/tenants/delete - Delete a tenant
+  app.post("/delete", async (c) => {
+    const body = await c.req.json();
+    const input = tenantCommands["tenant.delete"].input.parse(body);
     const result = await tenantCommands["tenant.delete"].handler(input, ctx);
 
     if (!result) {

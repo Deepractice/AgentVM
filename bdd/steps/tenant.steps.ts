@@ -35,14 +35,8 @@ Before({ tags: "@tenant" }, function (this: TenantWorld) {
 });
 
 // === Given steps ===
-
-Given("the AgentVM server is running", function (this: TenantWorld) {
-  assert(this.app, "App should be initialized");
-});
-
-Given("I have a client connected to the server", function (this: TenantWorld) {
-  assert(this.client, "Client should be initialized");
-});
+// Note: "the AgentVM server is running" and "I have a client connected to the server"
+// are defined in common.steps.ts
 
 Given(
   "I have created a tenant with name {string}",
@@ -147,17 +141,7 @@ Then("the response name should be {string}", function (this: TenantWorld, name: 
   assert.equal((this.response as Tenant).name, name);
 });
 
-Then(
-  "the response description should be {string}",
-  function (this: TenantWorld, description: string) {
-    assert(this.response, "No response");
-    assert(
-      typeof this.response === "object" && "description" in this.response,
-      "Response should have description"
-    );
-    assert.equal((this.response as Tenant).description, description);
-  }
-);
+// Note: "the response description should be" is defined in common.steps.ts
 
 Then(
   "the response should be an array with at least {int} items",
@@ -177,19 +161,5 @@ Then("the response should be an empty array", function (this: TenantWorld) {
   assert.equal(this.response.length, 0, "Response should be empty");
 });
 
-Then("the deletion should succeed", function (this: TenantWorld) {
-  assert(this.response, "No response");
-  assert(
-    typeof this.response === "object" && "deleted" in this.response,
-    "Response should have deleted property"
-  );
-  assert.equal((this.response as DeleteResponse).deleted, true);
-});
-
-Then("the request should fail with status {int}", function (this: TenantWorld, status: number) {
-  assert(this.error, "Expected an error");
-  assert(
-    this.error.message.includes(`HTTP ${status}`),
-    `Expected HTTP ${status} error, got: ${this.error.message}`
-  );
-});
+// Note: "the deletion should succeed" and "the request should fail with status"
+// are defined in common.steps.ts
