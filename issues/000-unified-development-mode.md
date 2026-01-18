@@ -533,3 +533,257 @@ export class D1TenantRepository implements TenantRepository {
 - [ ] 新增的功能是否遵循 interface → implementation 的模式？
 
 **违反此原则的代码不予合并。**
+
+---
+
+## 架构模式：Command 统一定义
+
+### 背景
+
+AgentVM 需要同时支持 HTTP API 和 CLI。如果分别实现两套，会有重复代码和不一致的风险。
+
+### 核心理念
+
+**Command = 统一的业务操作定义**
+
+- core 定义 Commands（做什么）
+- avm 提供 Context（用什么做）
+- HTTP/CLI 只是 Transport（怎么调用）
+
+### 架构图
+
+```
+@agentvm/core（定义）
+├── tenant/
+│   ├── types.ts              # Tenant, CreateTenantRequest...
+│   ├── TenantRepository.ts   # interface TenantRepository
+│   └── commands.ts           # tenant commands
+├── resource/
+│   ├── index.ts              # re-export from ResourceX
+│   └── commands.ts           # resource commands
+└── commands/
+    ├── define.ts             # defineCommand 工具
+    └── index.ts              # 聚合所有 commands
+
+         │
+         ▼ 执行
+
+@agentvm/avm（实现 + 运行）
+├── repositories/             # 接口实现
+│   └── SQLiteTenantRepository.ts
+├── context.ts                # 创建运行时 context
+├── http/                     # 从 commands 生成 HTTP 路由
+│   └── index.ts
+└── cli/                      # 从 commands 生成 CLI 命令
+    └── index.ts
+```
+
+### Command 定义
+
+```typescript
+// @agentvm/core/src/commands/define.ts
+import { z } from "zod";
+
+export interface Command<TInput, TOutput, TContext> {
+  input: z.ZodType<TInput>;
+  output?: z.ZodType<TOutput>;
+  handler: (input: TInput, ctx: TContext) => Promise<TOutput>;
+}
+
+export function defineCommand<TInput, TOutput, TContext>(
+  config: Command<TInput, TOutput, TContext>
+): Command<TInput, TOutput, TContext> {
+  return config;
+}
+```
+
+### 示例：Tenant Commands
+
+```typescript
+// @agentvm/core/src/tenant/commands.ts
+import { z } from "zod";
+import { defineCommand } from "../commands/define.js";
+import type { TenantRepository } from "./TenantRepository.js";
+
+interface TenantContext {
+  tenantRepo: TenantRepository;
+}
+
+export const tenantCommands = {
+  "tenant.create": defineCommand({
+    input: z.object({
+      name: z.string(),
+      description: z.string().optional(),
+    }),
+    handler: async (input, ctx: TenantContext) => {
+      return ctx.tenantRepo.create(input);
+    },
+  }),
+
+  "tenant.get": defineCommand({
+    input: z.object({ tenantId: z.string() }),
+    handler: async (input, ctx: TenantContext) => {
+      return ctx.tenantRepo.findById(input.tenantId);
+    },
+  }),
+
+  "tenant.list": defineCommand({
+    input: z.object({}),
+    handler: async (_input, ctx: TenantContext) => {
+      return ctx.tenantRepo.list();
+    },
+  }),
+
+  "tenant.delete": defineCommand({
+    input: z.object({ tenantId: z.string() }),
+    handler: async (input, ctx: TenantContext) => {
+      return ctx.tenantRepo.delete(input.tenantId);
+    },
+  }),
+};
+```
+
+### 聚合所有 Commands
+
+```typescript
+// @agentvm/core/src/commands/index.ts
+import { tenantCommands } from "../tenant/commands.js";
+import { resourceCommands } from "../resource/commands.js";
+
+export const commands = {
+  ...tenantCommands,
+  ...resourceCommands,
+};
+
+export type Commands = typeof commands;
+```
+
+### Context 创建
+
+```typescript
+// @agentvm/avm/src/context.ts
+import { SQLiteTenantRepository } from "./repositories/SQLiteTenantRepository.js";
+import { createRegistry } from "@agentvm/core";
+
+export interface AppContext {
+  tenantRepo: TenantRepository;
+  registry: Registry;
+}
+
+export function createContext(config: AppConfig): AppContext {
+  return {
+    tenantRepo: new SQLiteTenantRepository(config.dbPath),
+    registry: createRegistry({ path: config.registryPath }),
+  };
+}
+```
+
+### HTTP 生成
+
+```typescript
+// @agentvm/avm/src/http/index.ts
+import { Hono } from "hono";
+import { commands } from "@agentvm/core";
+import { createContext } from "../context.js";
+
+export function createHttpApp(config: AppConfig) {
+  const app = new Hono();
+  const ctx = createContext(config);
+
+  // tenant.create → POST /v1/tenants
+  app.post("/v1/tenants", async (c) => {
+    const input = await c.req.json();
+    const result = await commands["tenant.create"].handler(input, ctx);
+    return c.json(result);
+  });
+
+  // tenant.list → GET /v1/tenants
+  app.get("/v1/tenants", async (c) => {
+    const result = await commands["tenant.list"].handler({}, ctx);
+    return c.json(result);
+  });
+
+  // tenant.get → GET /v1/tenants/:id
+  app.get("/v1/tenants/:id", async (c) => {
+    const tenantId = c.req.param("id");
+    const result = await commands["tenant.get"].handler({ tenantId }, ctx);
+    return c.json(result);
+  });
+
+  // ... 更多路由
+
+  return app;
+}
+```
+
+### CLI 生成
+
+```typescript
+// @agentvm/avm/src/cli/index.ts
+import { Command } from "commander";
+import { commands } from "@agentvm/core";
+import { createContext } from "../context.js";
+
+export function createCli(config: AppConfig) {
+  const program = new Command();
+  const ctx = createContext(config);
+
+  // tenant.create → avm tenant create --name "foo"
+  program
+    .command("tenant")
+    .command("create")
+    .requiredOption("--name <name>", "Tenant name")
+    .option("--description <desc>", "Description")
+    .action(async (options) => {
+      const result = await commands["tenant.create"].handler(options, ctx);
+      console.log(result);
+    });
+
+  // tenant.list → avm tenant list
+  program
+    .command("tenant")
+    .command("list")
+    .action(async () => {
+      const result = await commands["tenant.list"].handler({}, ctx);
+      console.log(result);
+    });
+
+  // ... 更多命令
+
+  return program;
+}
+```
+
+### 好处
+
+| 方面           | 传统方式             | Command 模式     |
+| -------------- | -------------------- | ---------------- |
+| 代码重复       | HTTP 和 CLI 各写一遍 | 只写一遍 handler |
+| 一致性         | 容易不一致           | 同一个 handler   |
+| 测试           | 分别测试             | 只测 handler     |
+| 新增 Transport | 重新写一遍           | 自动适配         |
+
+### 命名约定
+
+```
+Command 名称: {domain}.{action}
+
+tenant.create    → POST   /v1/tenants
+tenant.list      → GET    /v1/tenants
+tenant.get       → GET    /v1/tenants/:id
+tenant.update    → PUT    /v1/tenants/:id
+tenant.delete    → DELETE /v1/tenants/:id
+
+resource.link    → POST   /v1/resources/{...}
+resource.resolve → GET    /v1/resources/{...}
+resource.delete  → DELETE /v1/resources/{...}
+```
+
+### 检查清单
+
+开发新功能时自问：
+
+- [ ] Command 定义在 core 的哪个子模块？
+- [ ] input schema 是否完整？
+- [ ] handler 只依赖 context 传入的接口？
+- [ ] HTTP 和 CLI 是否都能调用这个 command？

@@ -1,162 +1,195 @@
+/**
+ * Tenant Step Definitions
+ *
+ * End-to-end tests using the AgentVM Client.
+ */
+
 import { Given, When, Then, Before } from "@cucumber/cucumber";
 import { strict as assert } from "assert";
-import type { Tenant, TenantRepository, CreateTenantRequest } from "@agentvm/core";
-import { SQLiteTenantRepository } from "@agentvm/avm";
+import {
+  createHttpApp,
+  createClient,
+  type AvmClient,
+  type Tenant,
+  type DeleteResponse,
+} from "@agentvm/avm";
 
 interface TenantWorld {
-  repository: TenantRepository;
-  createdTenant?: Tenant;
-  foundTenant?: Tenant | null;
-  updatedTenant?: Tenant | null;
-  deleteResult?: boolean;
-  tenantList?: Tenant[];
-  existingTenantId?: string;
+  app: ReturnType<typeof createHttpApp>;
+  client: AvmClient;
+  response?: Tenant | Tenant[] | DeleteResponse | null;
+  error?: Error;
+  lastTenantId?: string;
 }
 
-Before(function (this: TenantWorld) {
-  // Clean state before each scenario
-  this.createdTenant = undefined;
-  this.foundTenant = undefined;
-  this.updatedTenant = undefined;
-  this.deleteResult = undefined;
-  this.tenantList = undefined;
-  this.existingTenantId = undefined;
+Before({ tags: "@tenant" }, function (this: TenantWorld) {
+  // Create a fresh app and client for each scenario
+  this.app = createHttpApp({ dbPath: ":memory:", logging: false });
+  this.client = createClient({
+    baseUrl: "",
+    fetch: (url, options) => this.app.request(url as string, options),
+  });
+  this.response = undefined;
+  this.error = undefined;
+  this.lastTenantId = undefined;
 });
 
-// Given steps
+// === Given steps ===
 
-Given("a tenant repository", async function (this: TenantWorld) {
-  // Use in-memory SQLite for testing
-  this.repository = new SQLiteTenantRepository(":memory:");
+Given("the AgentVM server is running", function (this: TenantWorld) {
+  assert(this.app, "App should be initialized");
 });
 
-Given("a tenant exists with name {string}", async function (this: TenantWorld, name: string) {
-  const tenant = await this.repository.create({ name });
-  this.existingTenantId = tenant.tenantId;
+Given("I have a client connected to the server", function (this: TenantWorld) {
+  assert(this.client, "Client should be initialized");
 });
 
-// When steps
+Given(
+  "I have created a tenant with name {string}",
+  async function (this: TenantWorld, name: string) {
+    const tenant = await this.client.tenant.create({ name });
+    this.lastTenantId = tenant.tenantId;
+  }
+);
+
+// === When steps ===
 
 When("I create a tenant with name {string}", async function (this: TenantWorld, name: string) {
-  this.createdTenant = await this.repository.create({ name });
+  this.response = await this.client.tenant.create({ name });
+  if (this.response && "tenantId" in this.response) {
+    this.lastTenantId = this.response.tenantId;
+  }
 });
 
 When(
   "I create a tenant with name {string} and description {string}",
   async function (this: TenantWorld, name: string, description: string) {
-    this.createdTenant = await this.repository.create({ name, description });
+    this.response = await this.client.tenant.create({ name, description });
+    if (this.response && "tenantId" in this.response) {
+      this.lastTenantId = this.response.tenantId;
+    }
   }
 );
 
-When("I find the tenant by its ID", async function (this: TenantWorld) {
-  assert(this.existingTenantId, "No existing tenant ID");
-  this.foundTenant = await this.repository.findById(this.existingTenantId);
+When("I get the tenant by ID", async function (this: TenantWorld) {
+  assert(this.lastTenantId, "No tenant ID available");
+  this.response = await this.client.tenant.get({ tenantId: this.lastTenantId });
 });
 
-When("I find a tenant with ID {string}", async function (this: TenantWorld, tenantId: string) {
-  this.foundTenant = await this.repository.findById(tenantId);
+When("I get a tenant with ID {string}", async function (this: TenantWorld, tenantId: string) {
+  try {
+    this.response = await this.client.tenant.get({ tenantId });
+  } catch (err) {
+    this.error = err as Error;
+  }
+});
+
+When("I list all tenants", async function (this: TenantWorld) {
+  this.response = await this.client.tenant.list();
 });
 
 When("I update the tenant name to {string}", async function (this: TenantWorld, name: string) {
-  assert(this.existingTenantId, "No existing tenant ID");
-  this.updatedTenant = await this.repository.update(this.existingTenantId, { name });
+  assert(this.lastTenantId, "No tenant ID available");
+  this.response = await this.client.tenant.update({
+    tenantId: this.lastTenantId,
+    name,
+  });
 });
 
 When(
   "I update the tenant description to {string}",
   async function (this: TenantWorld, description: string) {
-    assert(this.existingTenantId, "No existing tenant ID");
-    this.updatedTenant = await this.repository.update(this.existingTenantId, { description });
+    assert(this.lastTenantId, "No tenant ID available");
+    this.response = await this.client.tenant.update({
+      tenantId: this.lastTenantId,
+      description,
+    });
+  }
+);
+
+When(
+  "I update a tenant with ID {string} with name {string}",
+  async function (this: TenantWorld, tenantId: string, name: string) {
+    try {
+      this.response = await this.client.tenant.update({ tenantId, name });
+    } catch (err) {
+      this.error = err as Error;
+    }
   }
 );
 
 When("I delete the tenant", async function (this: TenantWorld) {
-  assert(this.existingTenantId, "No existing tenant ID");
-  this.deleteResult = await this.repository.delete(this.existingTenantId);
+  assert(this.lastTenantId, "No tenant ID available");
+  this.response = await this.client.tenant.delete({ tenantId: this.lastTenantId });
 });
 
 When("I delete a tenant with ID {string}", async function (this: TenantWorld, tenantId: string) {
-  this.deleteResult = await this.repository.delete(tenantId);
+  try {
+    this.response = await this.client.tenant.delete({ tenantId });
+  } catch (err) {
+    this.error = err as Error;
+  }
 });
 
-When("I list all tenants", async function (this: TenantWorld) {
-  this.tenantList = await this.repository.list();
+// === Then steps ===
+
+Then("the response should have a tenantId", function (this: TenantWorld) {
+  assert(this.response, "No response");
+  assert(
+    typeof this.response === "object" && "tenantId" in this.response,
+    "Response should have tenantId"
+  );
 });
 
-// Then steps
-
-Then("the tenant should be created", function (this: TenantWorld) {
-  assert(this.createdTenant, "Tenant was not created");
-});
-
-Then("the tenant should have name {string}", function (this: TenantWorld, name: string) {
-  const tenant = this.createdTenant || this.foundTenant || this.updatedTenant;
-  assert(tenant, "No tenant to check");
-  assert.equal(tenant.name, name);
+Then("the response name should be {string}", function (this: TenantWorld, name: string) {
+  assert(this.response, "No response");
+  assert(typeof this.response === "object" && "name" in this.response, "Response should have name");
+  assert.equal((this.response as Tenant).name, name);
 });
 
 Then(
-  "the tenant should have description {string}",
+  "the response description should be {string}",
   function (this: TenantWorld, description: string) {
-    const tenant = this.createdTenant || this.foundTenant || this.updatedTenant;
-    assert(tenant, "No tenant to check");
-    assert.equal(tenant.description, description);
+    assert(this.response, "No response");
+    assert(
+      typeof this.response === "object" && "description" in this.response,
+      "Response should have description"
+    );
+    assert.equal((this.response as Tenant).description, description);
   }
 );
 
-Then("the tenant should have a generated tenantId", function (this: TenantWorld) {
-  assert(this.createdTenant, "No created tenant");
-  assert(this.createdTenant.tenantId, "tenantId is missing");
-  assert(this.createdTenant.tenantId.length > 0, "tenantId is empty");
-});
+Then(
+  "the response should be an array with at least {int} items",
+  function (this: TenantWorld, minItems: number) {
+    assert(this.response, "No response");
+    assert(Array.isArray(this.response), "Response should be an array");
+    assert(
+      this.response.length >= minItems,
+      `Expected at least ${minItems} items, got ${this.response.length}`
+    );
+  }
+);
 
-Then("the tenant should have createdAt timestamp", function (this: TenantWorld) {
-  assert(this.createdTenant, "No created tenant");
-  assert(typeof this.createdTenant.createdAt === "number", "createdAt is not a number");
-  assert(this.createdTenant.createdAt > 0, "createdAt is not positive");
-});
-
-Then("the tenant should have updatedAt timestamp", function (this: TenantWorld) {
-  assert(this.createdTenant, "No created tenant");
-  assert(typeof this.createdTenant.updatedAt === "number", "updatedAt is not a number");
-  assert(this.createdTenant.updatedAt > 0, "updatedAt is not positive");
-});
-
-Then("the tenant should be found", function (this: TenantWorld) {
-  assert(this.foundTenant, "Tenant was not found");
-});
-
-Then("the tenant should not be found", function (this: TenantWorld) {
-  assert(this.foundTenant === null, "Tenant should not be found");
-});
-
-Then("the tenant should be updated", function (this: TenantWorld) {
-  assert(this.updatedTenant, "Tenant was not updated");
-});
-
-Then("the tenant updatedAt should be changed", function (this: TenantWorld) {
-  assert(this.updatedTenant, "No updated tenant");
-  // updatedAt should be recent (within last second)
-  const now = Date.now();
-  assert(this.updatedTenant.updatedAt <= now, "updatedAt is in the future");
-  assert(this.updatedTenant.updatedAt > now - 1000, "updatedAt is too old");
+Then("the response should be an empty array", function (this: TenantWorld) {
+  assert(this.response, "No response");
+  assert(Array.isArray(this.response), "Response should be an array");
+  assert.equal(this.response.length, 0, "Response should be empty");
 });
 
 Then("the deletion should succeed", function (this: TenantWorld) {
-  assert.equal(this.deleteResult, true, "Deletion should succeed");
+  assert(this.response, "No response");
+  assert(
+    typeof this.response === "object" && "deleted" in this.response,
+    "Response should have deleted property"
+  );
+  assert.equal((this.response as DeleteResponse).deleted, true);
 });
 
-Then("the deletion should fail", function (this: TenantWorld) {
-  assert.equal(this.deleteResult, false, "Deletion should fail");
-});
-
-Then("the tenant should no longer exist", async function (this: TenantWorld) {
-  assert(this.existingTenantId, "No existing tenant ID");
-  const tenant = await this.repository.findById(this.existingTenantId);
-  assert(tenant === null, "Tenant should no longer exist");
-});
-
-Then("I should get {int} tenants", function (this: TenantWorld, count: number) {
-  assert(this.tenantList, "No tenant list");
-  assert.equal(this.tenantList.length, count, `Expected ${count} tenants`);
+Then("the request should fail with status {int}", function (this: TenantWorld, status: number) {
+  assert(this.error, "Expected an error");
+  assert(
+    this.error.message.includes(`HTTP ${status}`),
+    `Expected HTTP ${status} error, got: ${this.error.message}`
+  );
 });

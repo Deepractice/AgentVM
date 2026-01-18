@@ -37,6 +37,9 @@
     "test": "bun test",
     "clean": "rm -rf dist"
   },
+  "dependencies": {
+    "zod": "^3.24.0"
+  },
   "devDependencies": {},
   "publishConfig": {
     "access": "public"

@@ -5,7 +5,23 @@
  * Implements interfaces defined in @agentvm/core.
  */
 
-export { createServer, type ServerConfig } from "./server/index.js";
+// Server
+export { createServer, type ServerConfig, type Server } from "./server/index.js";
+
+// HTTP
+export { createHttpApp, type HttpAppConfig } from "./http/index.js";
+
+// Client
+export {
+  createClient,
+  type ClientConfig,
+  type AvmClient,
+  type TenantClient,
+  type DeleteResponse,
+} from "./client/index.js";
+
+// Context
+export { createContext, type AppContext, type ContextConfig } from "./context.js";
 
 // Repositories
 export { SQLiteTenantRepository } from "./repositories/index.js";

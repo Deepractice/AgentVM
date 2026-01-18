@@ -66,6 +66,8 @@ export default [
         AbortController: "readonly",
         // Crypto
         crypto: "readonly",
+        // Fetch types
+        RequestInit: "readonly",
       },
     },
     plugins: {
