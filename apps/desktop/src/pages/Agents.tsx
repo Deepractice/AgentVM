@@ -6,7 +6,7 @@ function AgentsPage() {
 
   if (!currentTenant) {
     return (
-      <div className="h-full flex items-center justify-center text-gray-400">
+      <div className="h-full flex items-center justify-center text-[var(--text-muted)]">
         <div className="text-center">
           <Bot className="w-12 h-12 mx-auto mb-4 opacity-50" />
           <p>请先选择一个租户</p>
@@ -18,22 +18,22 @@ function AgentsPage() {
   return (
     <div className="h-full flex">
       {/* Sidebar - Agent List */}
-      <div className="w-64 border-r border-[#3C3C3C] flex flex-col">
-        <div className="p-3 border-b border-[#3C3C3C]">
-          <h2 className="text-sm font-medium text-gray-300">智能体列表</h2>
+      <div className="w-[260px] bg-[var(--bg-secondary)] border-r border-[var(--border-light)] flex flex-col">
+        <div className="p-3 border-b border-[var(--border-light)]">
+          <h2 className="text-sm font-medium text-[var(--text-primary)]">智能体</h2>
         </div>
 
         <div className="flex-1 overflow-y-auto p-2">
           {/* Empty state */}
-          <div className="text-gray-500 text-center py-8">
+          <div className="text-[var(--text-muted)] text-center py-8">
             <Bot className="w-8 h-8 mx-auto mb-2 opacity-50" />
             <p className="text-sm">暂无智能体</p>
           </div>
         </div>
 
         {/* New Agent Button */}
-        <div className="p-2 border-t border-[#3C3C3C]">
-          <button className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm">
+        <div className="p-2 border-t border-[var(--border-light)]">
+          <button className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-[var(--accent-primary)] hover:bg-[var(--accent-hover)] text-white rounded-lg text-sm transition-colors">
             <Plus className="w-4 h-4" />
             创建智能体
           </button>
@@ -41,11 +41,13 @@ function AgentsPage() {
       </div>
 
       {/* Main Content - Agent Detail */}
-      <div className="flex-1 flex items-center justify-center text-gray-400">
+      <div className="flex-1 flex items-center justify-center bg-[var(--bg-primary)]">
         <div className="text-center">
-          <Bot className="w-16 h-16 mx-auto mb-4 opacity-30" />
-          <p className="text-lg mb-2">选择或创建一个智能体</p>
-          <p className="text-sm text-gray-500">当前租户: {currentTenant.name}</p>
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[var(--bg-tertiary)] flex items-center justify-center">
+            <Bot className="w-8 h-8 text-[var(--text-muted)]" />
+          </div>
+          <p className="text-lg text-[var(--text-primary)] mb-2">选择或创建一个智能体</p>
+          <p className="text-sm text-[var(--text-muted)]">当前租户: {currentTenant.name}</p>
         </div>
       </div>
     </div>

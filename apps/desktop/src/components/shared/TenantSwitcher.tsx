@@ -49,14 +49,14 @@ export function TenantSwitcher() {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-      <div className="bg-[#252526] rounded-lg w-96 max-h-[80vh] flex flex-col shadow-xl border border-[#3C3C3C]">
+    <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+      <div className="bg-[var(--bg-card)] rounded-xl w-96 max-h-[80vh] flex flex-col shadow-xl border border-[var(--border-light)]">
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-[#3C3C3C]">
-          <h2 className="text-lg font-medium text-white">切换租户</h2>
+        <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--border-light)]">
+          <h2 className="text-base font-medium text-[var(--text-primary)]">切换租户</h2>
           <button
             onClick={closeTenantSwitcher}
-            className="text-gray-400 hover:text-white"
+            className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -65,30 +65,30 @@ export function TenantSwitcher() {
         {/* Tenant List */}
         <div className="flex-1 overflow-y-auto p-2">
           {isLoading ? (
-            <div className="text-gray-400 text-center py-4">加载中...</div>
+            <div className="text-[var(--text-muted)] text-center py-4">加载中...</div>
           ) : tenants?.length === 0 ? (
-            <div className="text-gray-400 text-center py-4">暂无租户，请创建一个</div>
+            <div className="text-[var(--text-muted)] text-center py-4">暂无租户，请创建一个</div>
           ) : (
             <div className="space-y-1">
               {tenants?.map((tenant) => (
                 <div
                   key={tenant.tenantId}
                   onClick={() => handleSelect(tenant)}
-                  className={`flex items-center justify-between px-3 py-2 rounded-md cursor-pointer group ${
+                  className={`flex items-center justify-between px-3 py-2.5 rounded-lg cursor-pointer group transition-colors ${
                     currentTenant?.tenantId === tenant.tenantId
-                      ? "bg-[#37373D] text-white"
-                      : "text-gray-300 hover:bg-[#2A2D2E]"
+                      ? "bg-[var(--bg-tertiary)] text-[var(--text-primary)]"
+                      : "text-[var(--text-secondary)] hover:bg-[var(--bg-secondary)]"
                   }`}
                 >
                   <div className="flex items-center gap-2">
                     {currentTenant?.tenantId === tenant.tenantId && (
-                      <Check className="w-4 h-4 text-green-500" />
+                      <Check className="w-4 h-4 text-[var(--accent-success)]" />
                     )}
                     <span>{tenant.name}</span>
                   </div>
                   <button
                     onClick={(e) => handleDelete(tenant.tenantId, e)}
-                    className="text-gray-500 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="text-[var(--text-muted)] hover:text-[var(--accent-error)] opacity-0 group-hover:opacity-100 transition-all"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -99,14 +99,14 @@ export function TenantSwitcher() {
         </div>
 
         {/* Create Form */}
-        <div className="border-t border-[#3C3C3C] p-3">
+        <div className="border-t border-[var(--border-light)] p-3">
           {isCreating ? (
             <form onSubmit={handleCreate} className="flex gap-2">
               <Input
                 value={newTenantName}
                 onChange={(e) => setNewTenantName(e.target.value)}
                 placeholder="租户名称"
-                className="flex-1 bg-[#3C3C3C] border-none text-white"
+                className="flex-1"
                 autoFocus
               />
               <Button type="submit" size="sm" disabled={createTenant.isPending}>
@@ -124,7 +124,7 @@ export function TenantSwitcher() {
           ) : (
             <Button
               variant="ghost"
-              className="w-full justify-start text-gray-400 hover:text-white"
+              className="w-full justify-start text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
               onClick={() => setIsCreating(true)}
             >
               <Plus className="w-4 h-4 mr-2" />

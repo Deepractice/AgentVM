@@ -32,12 +32,12 @@ function App() {
   };
 
   return (
-    <div className="h-screen flex bg-[#1E1E1E]">
+    <div className="h-screen flex bg-[var(--bg-primary)]">
       {/* Activity Bar */}
       <ActivityBar />
 
       {/* Main Content */}
-      <main className="flex-1 bg-[#252526]">{renderContent()}</main>
+      <main className="flex-1">{renderContent()}</main>
 
       {/* Tenant Switcher Modal */}
       {tenantSwitcherOpen && <TenantSwitcher />}
