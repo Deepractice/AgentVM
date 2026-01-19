@@ -1,6 +1,7 @@
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, ipcMain, dialog } from "electron";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
+import { readFile, readdir } from "fs/promises";
 import { createServer, type Server } from "agentvm";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -66,4 +67,27 @@ app.on("quit", () => {
   if (server) {
     server.close();
   }
+});
+
+// IPC Handlers
+ipcMain.handle("select-folder", async () => {
+  const result = await dialog.showOpenDialog({
+    properties: ["openDirectory"],
+  });
+  return result.canceled ? null : result.filePaths[0];
+});
+
+ipcMain.handle("select-file", async () => {
+  const result = await dialog.showOpenDialog({
+    properties: ["openFile"],
+  });
+  return result.canceled ? null : result.filePaths[0];
+});
+
+ipcMain.handle("read-file", async (_event, filePath: string) => {
+  return readFile(filePath, "utf-8");
+});
+
+ipcMain.handle("read-dir", async (_event, dirPath: string) => {
+  return readdir(dirPath);
 });

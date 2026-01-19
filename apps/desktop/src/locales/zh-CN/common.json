@@ -29,13 +29,26 @@
   },
   "resources": {
     "title": "资源",
-    "installed": "已安装",
+    "local": "本地资源",
     "market": "市场",
+    "publish": "我的发布",
     "empty": "暂无资源",
     "all": "全部",
     "prompts": "提示词",
     "tools": "工具",
-    "searchPlaceholder": "搜索资源..."
+    "searchPlaceholder": "搜索资源...",
+    "searchMarket": "搜索市场资源...",
+    "searchPublished": "搜索已发布资源...",
+    "linkResource": "链接资源",
+    "publishResource": "发布资源",
+    "install": "安装",
+    "noPublished": "暂无已发布资源",
+    "publishHint": "发布你的资源，与他人共享",
+    "selectFolder": "选择资源目录",
+    "resourceJsonNotFound": "未找到 resource.json 文件",
+    "contentFileNotFound": "未找到 content 文件",
+    "invalidResourceJson": "resource.json 格式错误",
+    "missingRequiredFields": "缺少必填字段（name、type、version）"
   },
   "settings": {
     "title": "设置",

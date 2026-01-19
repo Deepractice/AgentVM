@@ -29,13 +29,21 @@
   },
   "resources": {
     "title": "Resources",
-    "installed": "Installed",
+    "local": "Local Resources",
     "market": "Market",
+    "publish": "My Publish",
     "empty": "No resources yet",
     "all": "All",
     "prompts": "Prompts",
     "tools": "Tools",
-    "searchPlaceholder": "Search resources..."
+    "searchPlaceholder": "Search resources...",
+    "searchMarket": "Search market...",
+    "searchPublished": "Search published...",
+    "linkResource": "Link Resource",
+    "publishResource": "Publish Resource",
+    "install": "Install",
+    "noPublished": "No published resources",
+    "publishHint": "Publish your resources to share with others"
   },
   "settings": {
     "title": "Settings",

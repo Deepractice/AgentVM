@@ -21,7 +21,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "resourcexjs": "^0.8.0"
+    "resourcexjs": "^1.0.0"
   },
   "devDependencies": {
     "typescript": "^5.8.3"

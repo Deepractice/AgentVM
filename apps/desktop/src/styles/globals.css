@@ -40,3 +40,12 @@ body {
 .no-drag {
   -webkit-app-region: no-drag;
 }
+
+/* Auto no-drag for interactive elements inside drag-region */
+.drag-region button,
+.drag-region input,
+.drag-region textarea,
+.drag-region select,
+.drag-region a {
+  -webkit-app-region: no-drag;
+}
