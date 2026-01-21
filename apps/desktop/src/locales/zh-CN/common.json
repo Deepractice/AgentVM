@@ -85,5 +85,13 @@
     "edit": "编辑",
     "search": "搜索",
     "developingFeature": "功能开发中..."
+  },
+  "errors": {
+    "VALIDATION_ERROR": "验证失败",
+    "INTERNAL_ERROR": "服务器错误",
+    "TENANT_NOT_FOUND": "租户不存在",
+    "RESOURCE_NOT_FOUND": "资源不存在",
+    "RESOURCE_LOAD_ERROR": "资源加载失败",
+    "RESOURCE_INVALID": "资源格式无效"
   }
 }

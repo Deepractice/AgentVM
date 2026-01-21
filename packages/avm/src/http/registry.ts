@@ -2,11 +2,38 @@
  * Registry HTTP Routes
  *
  * RPC-style HTTP endpoints for resource registry operations.
+ * Handlers use ResourceX directly for resource management.
  */
 
 import { Hono } from "hono";
-import { registryCommands } from "@agentvm/core";
+import { registrySchemas } from "@agentvm/core";
 import type { AppContext } from "../context.js";
+import { loadResource } from "resourcexjs";
+import type { RXR } from "resourcexjs";
+
+/**
+ * Convert RXR to response format
+ */
+async function rxrToResponse(rxr: RXR) {
+  // Get all files from RXC archive
+  const filesMap = await rxr.content.files();
+  const files: Record<string, string> = {};
+  for (const [path, buffer] of filesMap) {
+    files[path] = buffer.toString("utf-8");
+  }
+
+  return {
+    locator: rxr.locator.toString(),
+    manifest: {
+      domain: rxr.manifest.domain,
+      path: rxr.manifest.path,
+      name: rxr.manifest.name,
+      type: rxr.manifest.type,
+      version: rxr.manifest.version,
+    },
+    files,
+  };
+}
 
 /**
  * Create registry routes (RPC style)
@@ -14,33 +41,29 @@ import type { AppContext } from "../context.js";
 export function createRegistryRoutes(ctx: AppContext) {
   const app = new Hono();
 
-  // POST /v1/registry/publish - Publish a resource
-  app.post("/publish", async (c) => {
-    const body = await c.req.json();
-    const input = registryCommands["registry.publish"].input.parse(body);
-    const result = await registryCommands["registry.publish"].handler(input, ctx);
-    return c.json(result, 201);
-  });
-
-  // POST /v1/registry/link - Link a resource to local registry
+  // POST /v1/registry/link - Link a resource folder to local registry
   app.post("/link", async (c) => {
     const body = await c.req.json();
-    const input = registryCommands["registry.link"].input.parse(body);
-    const result = await registryCommands["registry.link"].handler(input, ctx);
-    return c.json(result, 201);
+    const input = registrySchemas["registry.link"].input.parse(body);
+
+    const rxr = await loadResource(input.folderPath);
+    await ctx.registry.link(rxr);
+
+    return c.json({ locator: rxr.locator.toString() }, 201);
   });
 
   // POST /v1/registry/resolve - Resolve a resource
   app.post("/resolve", async (c) => {
     const body = await c.req.json();
-    const input = registryCommands["registry.resolve"].input.parse(body);
-    const result = await registryCommands["registry.resolve"].handler(input, ctx);
+    const input = registrySchemas["registry.resolve"].input.parse(body);
 
-    if (!result) {
+    try {
+      const rxr = await ctx.registry.resolve(input.locator);
+      const response = await rxrToResponse(rxr);
+      return c.json(response);
+    } catch (error) {
       return c.json({ error: "Resource not found" }, 404);
     }
-
-    return c.json(result);
   });
 
   // GET /v1/registry/exists - Check if resource exists
@@ -49,36 +72,24 @@ export function createRegistryRoutes(ctx: AppContext) {
     if (!locator) {
       return c.json({ error: "locator query parameter is required" }, 400);
     }
-    const input = registryCommands["registry.exists"].input.parse({ locator });
-    const result = await registryCommands["registry.exists"].handler(input, ctx);
-    return c.json(result);
+
+    const input = registrySchemas["registry.exists"].input.parse({ locator });
+    const exists = await ctx.registry.exists(input.locator);
+
+    return c.json({ exists });
   });
 
   // POST /v1/registry/delete - Delete a resource
   app.post("/delete", async (c) => {
     const body = await c.req.json();
-    const input = registryCommands["registry.delete"].input.parse(body);
-    const result = await registryCommands["registry.delete"].handler(input, ctx);
+    const input = registrySchemas["registry.delete"].input.parse(body);
 
-    if (!result.deleted) {
+    try {
+      await ctx.registry.delete(input.locator);
+      return c.json({ deleted: true });
+    } catch (error) {
       return c.json({ error: "Resource not found" }, 404);
     }
-
-    return c.json(result);
-  });
-
-  // GET /v1/registry/search - Search resources
-  app.get("/search", async (c) => {
-    const query = {
-      domain: c.req.query("domain"),
-      type: c.req.query("type"),
-      name: c.req.query("name"),
-      limit: c.req.query("limit") ? parseInt(c.req.query("limit")!, 10) : undefined,
-      offset: c.req.query("offset") ? parseInt(c.req.query("offset")!, 10) : undefined,
-    };
-    const input = registryCommands["registry.search"].input.parse(query);
-    const result = await registryCommands["registry.search"].handler(input, ctx);
-    return c.json(result);
   });
 
   return app;

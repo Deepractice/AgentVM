@@ -2,27 +2,21 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { X, FolderOpen, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { parseResourceFolder } from "@/utils/resourceFolder";
-import { useResourcePublish } from "@/hooks/useResources";
+import { useResourceLink } from "@/hooks/useResources";
 
 interface LinkResourceModalProps {
   onClose: () => void;
 }
 
-type ModalState = "idle" | "selecting" | "validating" | "linking" | "success" | "error";
+type ModalState = "idle" | "selecting" | "linking" | "success" | "error";
 
 export function LinkResourceModal({ onClose }: LinkResourceModalProps) {
   const { t } = useTranslation();
-  const linkMutation = useResourcePublish();
+  const linkMutation = useResourceLink();
 
   const [state, setState] = useState<ModalState>("idle");
   const [folderPath, setFolderPath] = useState<string | null>(null);
-  const [resourceInfo, setResourceInfo] = useState<{
-    name: string;
-    type: string;
-    version: string;
-    description?: string;
-  } | null>(null);
+  const [linkedLocator, setLinkedLocator] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const handleSelectFolder = async () => {
@@ -37,24 +31,6 @@ export function LinkResourceModal({ onClose }: LinkResourceModalProps) {
       }
 
       setFolderPath(path);
-      setState("validating");
-
-      // Parse resource folder
-      const parsed = await parseResourceFolder(path);
-
-      // Extract info from locator for preview
-      const locatorParts = parsed.locator.split("/");
-      const lastPart = locatorParts[locatorParts.length - 1];
-      const [nameTypePart, version] = lastPart.split("@");
-      const [name, type] = nameTypePart.split(".");
-
-      setResourceInfo({
-        name,
-        type,
-        version,
-        description: parsed.description,
-      });
-
       setState("idle");
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
@@ -69,15 +45,8 @@ export function LinkResourceModal({ onClose }: LinkResourceModalProps) {
     setError(null);
 
     try {
-      const parsed = await parseResourceFolder(folderPath);
-
-      await linkMutation.mutateAsync({
-        locator: parsed.locator,
-        content: parsed.content,
-        description: parsed.description,
-        tags: parsed.tags,
-      });
-
+      const result = await linkMutation.mutateAsync(folderPath);
+      setLinkedLocator(result.locator);
       setState("success");
       setTimeout(() => {
         onClose();
@@ -109,7 +78,7 @@ export function LinkResourceModal({ onClose }: LinkResourceModalProps) {
           {/* Select Folder */}
           <button
             onClick={handleSelectFolder}
-            disabled={state === "selecting" || state === "validating" || state === "linking"}
+            disabled={state === "selecting" || state === "linking"}
             className={cn(
               "w-full h-32 rounded-lg border-2 border-dashed transition-colors",
               "flex flex-col items-center justify-center gap-2",
@@ -124,36 +93,11 @@ export function LinkResourceModal({ onClose }: LinkResourceModalProps) {
             </span>
           </button>
 
-          {/* Validation Status */}
-          {state === "validating" && (
+          {/* Linking Status */}
+          {state === "linking" && (
             <div className="mt-4 p-3 bg-blue-50 rounded-lg flex items-center gap-2">
               <Loader2 className="w-4 h-4 text-blue-600 animate-spin" />
-              <span className="text-sm text-blue-700">Validating resource...</span>
-            </div>
-          )}
-
-          {resourceInfo && state !== "error" && (
-            <div className="mt-4 p-3 bg-green-50 rounded-lg">
-              <div className="flex items-center gap-2 mb-2">
-                <CheckCircle2 className="w-4 h-4 text-green-600" />
-                <span className="text-sm font-medium text-green-700">Valid Resource</span>
-              </div>
-              <div className="space-y-1 text-xs text-green-700">
-                <div>
-                  <span className="font-medium">Name:</span> {resourceInfo.name}
-                </div>
-                <div>
-                  <span className="font-medium">Type:</span> {resourceInfo.type}
-                </div>
-                <div>
-                  <span className="font-medium">Version:</span> {resourceInfo.version}
-                </div>
-                {resourceInfo.description && (
-                  <div>
-                    <span className="font-medium">Description:</span> {resourceInfo.description}
-                  </div>
-                )}
-              </div>
+              <span className="text-sm text-blue-700">Linking resource...</span>
             </div>
           )}
 
@@ -169,10 +113,15 @@ export function LinkResourceModal({ onClose }: LinkResourceModalProps) {
           )}
 
           {/* Success */}
-          {state === "success" && (
-            <div className="mt-4 p-3 bg-green-50 rounded-lg flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-green-600" />
-              <span className="text-sm text-green-700">Resource linked successfully!</span>
+          {state === "success" && linkedLocator && (
+            <div className="mt-4 p-3 bg-green-50 rounded-lg">
+              <div className="flex items-center gap-2 mb-2">
+                <CheckCircle2 className="w-4 h-4 text-green-600" />
+                <span className="text-sm font-medium text-green-700">
+                  Resource linked successfully!
+                </span>
+              </div>
+              <p className="text-xs text-green-600 font-mono">{linkedLocator}</p>
             </div>
           )}
         </div>
@@ -187,10 +136,10 @@ export function LinkResourceModal({ onClose }: LinkResourceModalProps) {
           </button>
           <button
             onClick={handleLink}
-            disabled={!resourceInfo || state === "linking" || state === "success"}
+            disabled={!folderPath || state === "linking" || state === "success"}
             className={cn(
               "h-8 px-4 rounded text-sm font-medium transition-colors flex items-center gap-2",
-              resourceInfo && state !== "linking" && state !== "success"
+              folderPath && state !== "linking" && state !== "success"
                 ? "bg-[#4A7FD4] text-white hover:bg-[#3D6BB3]"
                 : "bg-[var(--bg-tertiary)] text-[var(--text-muted)] cursor-not-allowed"
             )}

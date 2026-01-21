@@ -27,8 +27,5 @@ export { createContext, type AppContext, type ContextConfig } from "./context.js
 // Repositories
 export { SQLiteTenantRepository } from "./repositories/index.js";
 
-// Registry
-export { LocalResourceRepository } from "./registry/index.js";
-
 // Re-export from core
 export * from "@agentvm/core";

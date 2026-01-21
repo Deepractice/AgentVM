@@ -4,6 +4,9 @@
   "workspaces": {
     "": {
       "name": "agentvm",
+      "dependencies": {
+        "resourcexjs": "^1.1.0",
+      },
       "devDependencies": {
         "@changesets/cli": "^2.29.7",
         "@commitlint/cli": "^20.1.0",
@@ -78,11 +81,13 @@
       },
       "dependencies": {
         "@agentvm/core": "workspace:*",
+        "@agentvm/resource-types": "workspace:*",
         "@hono/node-server": "^1.14.3",
         "commander": "^13.1.0",
         "commonxjs": "^0.1.0",
         "drizzle-orm": "^0.45.1",
         "hono": "^4.7.10",
+        "resourcexjs": "^1.0.0",
       },
       "devDependencies": {
         "agentxjs": "^1.9.0",
@@ -455,15 +460,15 @@
 
     "@radix-ui/react-use-layout-effect": ["@radix-ui/react-use-layout-effect@1.1.1", "", { "peerDependencies": { "@types/react": "*", "react": "^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc" }, "optionalPeers": ["@types/react"] }, "sha512-RbJRS4UWQFkzHTTwVymMTUv8EqYhOp8dOOviLj2ugtTiXRaRQS7GLGxZTLL1jWhMeoSCf5zmcZkqTl9IiYfXcQ=="],
 
-    "@resourcexjs/arp": ["@resourcexjs/arp@1.0.0", "", {}, "sha512-xsugv2/bGSb0wkai004W3xYl7J+atHoDIq3GKNGAunFtef6vAedH4mfN/OPFfQnn/01SEF5cNBpbQ+ru/IUkIg=="],
+    "@resourcexjs/arp": ["@resourcexjs/arp@1.1.0", "", {}, "sha512-1G0IUtHvkm9zxt6hJAkrPp3aa8L2Wdda9St+AiVCwD6aolL1F3WIRPEclou7hTCjiLMAzhb13njZAhLLQ1CJ/A=="],
 
-    "@resourcexjs/core": ["@resourcexjs/core@1.0.0", "", { "dependencies": { "@resourcexjs/arp": "^1.0.0" } }, "sha512-JOMkwbMF8Cf0SEyBvZQFyCn2HRPiFsJ4cMYY2vFdCnchBXFs1J42Pm9auIDqc+2jakFpXFLLledyulpnFQ9lIw=="],
+    "@resourcexjs/core": ["@resourcexjs/core@1.1.0", "", { "dependencies": { "@resourcexjs/arp": "^1.1.0", "modern-tar": "^0.7.3" } }, "sha512-sTufITsp/NefvlnhJsnpGQdGvuJN3Z2elxj5xekzQe/xmAb1Xn9qFE66zQEoUgmIbYyIAIFeL3aXOvN9dvPATQ=="],
 
-    "@resourcexjs/loader": ["@resourcexjs/loader@1.0.0", "", { "dependencies": { "@resourcexjs/core": "^1.0.0" } }, "sha512-sed08L6EAPWoiFywFubho/NZ+Xi18kuhkgSV994eIrkovPBBpfMwx4cOLv8im/FNCppdCNky+9YpWNyq7GMBpw=="],
+    "@resourcexjs/loader": ["@resourcexjs/loader@1.1.0", "", { "dependencies": { "@resourcexjs/core": "^1.1.0" } }, "sha512-jew2qjqQYks0Xvco4nWwIxql/0RKVT48eI6eCVqU+BOYSVkGt7+ZQyaBgrXulxcshrUBpssbqgStf+fzx2bydg=="],
 
-    "@resourcexjs/registry": ["@resourcexjs/registry@1.0.0", "", { "dependencies": { "@resourcexjs/arp": "^1.0.0", "@resourcexjs/core": "^1.0.0", "@resourcexjs/type": "^1.0.0" } }, "sha512-kbgOrpwJD2HNr7fx++vCIP3Uc63lwH8N7bQWCiVwU6H/4z+YHk4OpfmLtzMtbSPPGb4XiY55qcHRHFHL12Q4+A=="],
+    "@resourcexjs/registry": ["@resourcexjs/registry@1.1.0", "", { "dependencies": { "@resourcexjs/arp": "^1.1.0", "@resourcexjs/core": "^1.1.0", "@resourcexjs/type": "^1.1.0" } }, "sha512-tvFFn/nYnoCVXfRNrhekYolO24R0K71VVwNSqDfQycdXLRU1Y8sJsXmTDuhG3gzlm1YIxElyEoKnJiOfMLLO+Q=="],
 
-    "@resourcexjs/type": ["@resourcexjs/type@1.0.0", "", { "dependencies": { "@resourcexjs/core": "^1.0.0" } }, "sha512-VFx43Gdq/BYiG8hucTgbStMlVQ0Ta1W9oNtRTm037vvaZ9Wj2hPb3lWiurtzo0TSx2p1GmWPiQPBXOHBSLmuLA=="],
+    "@resourcexjs/type": ["@resourcexjs/type@1.1.0", "", { "dependencies": { "@resourcexjs/core": "^1.1.0" } }, "sha512-uE8vyZjb1aqPib0APrdwhb8ckRqSJS8d32uVN22fMPOMCYKWnInFgZJVFNfxhYftuQSJck8BaSqAzvijETJhEg=="],
 
     "@rolldown/pluginutils": ["@rolldown/pluginutils@1.0.0-beta.27", "", {}, "sha512-+d0F4MKMCbeVUJwG96uQ4SgAznZNSq93I3V+9NHA4OpvqG8mRCpGdKmK8l/dl02h2CCDHwW2FqilnTyDcAnqjA=="],
 
@@ -1457,6 +1462,8 @@
 
     "mkdirp": ["mkdirp@2.1.6", "", { "bin": { "mkdirp": "dist/cjs/src/bin.js" } }, "sha512-+hEnITedc8LAtIP9u3HJDFIdcLV2vXP33sqLLIzkv1Db1zO/1OxbvYf0Y1OC/S/Qo5dxHXepofhmxL02PsKe+A=="],
 
+    "modern-tar": ["modern-tar@0.7.3", "", {}, "sha512-4W79zekKGyYU4JXVmB78DOscMFaJth2gGhgfTl2alWE4rNe3nf4N2pqenQ0rEtIewrnD79M687Ouba3YGTLOvg=="],
+
     "mri": ["mri@1.2.0", "", {}, "sha512-tzzskb3bG8LvYGFF/mDTpq3jpI6Q9wc3LEmBaghu+DdCssd1FakN7Bc0hVNmEyGq1bq3RgfkCb3cmQLpNPOroA=="],
 
     "ms": ["ms@2.1.3", "", {}, "sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA=="],
@@ -1683,7 +1690,7 @@
 
     "resolve-pkg-maps": ["resolve-pkg-maps@1.0.0", "", {}, "sha512-seS2Tj26TBVOC2NIc2rOe2y2ZO7efxITtLZcGSOnHHNOQ7CkiUBfw0Iw2ck6xkIhPwLhKNLS8BO+hEpngQlqzw=="],
 
-    "resourcexjs": ["resourcexjs@1.0.0", "", { "dependencies": { "@resourcexjs/arp": "^1.0.0", "@resourcexjs/core": "^1.0.0", "@resourcexjs/loader": "^1.0.0", "@resourcexjs/registry": "^1.0.0", "@resourcexjs/type": "^1.0.0" } }, "sha512-dGKFjsoRZpJTmj0rz5u55E0HnlobS1RqDjNGtxmfqddJksdcZ+g/Ryg9CfVuP5g7vAg7WmmmFG0AEO2/FZfi5g=="],
+    "resourcexjs": ["resourcexjs@1.1.0", "", { "dependencies": { "@resourcexjs/arp": "^1.1.0", "@resourcexjs/core": "^1.1.0", "@resourcexjs/loader": "^1.1.0", "@resourcexjs/registry": "^1.1.0", "@resourcexjs/type": "^1.1.0" } }, "sha512-vUwraXI5BMo3CGZaDr3R04z/sklmkDN6VvI5a9xyTyGwK08yb0oL6bJ5cY7E00Tc7q/iMYMmOBxzFmy1gLc3qQ=="],
 
     "responselike": ["responselike@2.0.1", "", { "dependencies": { "lowercase-keys": "^2.0.0" } }, "sha512-4gl03wn3hj1HP3yzgdI7d3lCkF95F21Pz4BPGvKHinyQzALR5CapwC8yIi0Rh58DEMQ/SguC03wFj2k0M/mHhw=="],
 

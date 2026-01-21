@@ -1,28 +1,36 @@
 /**
  * AgentVM Client
  *
- * Type-safe HTTP client generated from command definitions.
+ * Type-safe HTTP client using schemas from core.
+ * Safe to use in browser/renderer process.
  */
 
 import {
-  commands,
+  schemas,
   type Tenant,
-  type Resource,
-  type ResolveResourceResponse,
-  type ResourceListResponse,
+  type LinkResponse,
+  type ResolveResponse,
   type ExistsResponse,
-  type DeleteResourceResponse,
+  type DeleteResponse as CoreDeleteResponse,
 } from "@agentvm/core";
+import { type ApiError } from "../http/errors.js";
 
 // Re-export types for client consumers
-export type {
-  Tenant,
-  Resource,
-  ResolveResourceResponse,
-  ResourceListResponse,
-  ExistsResponse,
-  DeleteResourceResponse,
-};
+export type { Tenant, LinkResponse, ResolveResponse, ExistsResponse };
+export type { ApiError };
+
+/**
+ * API request error with structured error info
+ */
+export class ApiRequestError extends Error {
+  constructor(
+    public readonly status: number,
+    public readonly apiError: ApiError
+  ) {
+    super(apiError.message);
+    this.name = "ApiRequestError";
+  }
+}
 
 /**
  * Client configuration
@@ -100,8 +108,8 @@ async function makeRequest<T>(
   const response = await fetchFn(url, options);
 
   if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`HTTP ${response.status}: ${error}`);
+    const body = (await response.json()) as ApiError;
+    throw new ApiRequestError(response.status, body);
   }
 
   return response.json() as Promise<T>;
@@ -137,8 +145,8 @@ async function makeGetRequest<T>(
   const response = await fetchFn(url, options);
 
   if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`HTTP ${response.status}: ${error}`);
+    const body = (await response.json()) as ApiError;
+    throw new ApiRequestError(response.status, body);
   }
 
   return response.json() as Promise<T>;
@@ -170,28 +178,10 @@ export interface TenantClient {
  * Registry client interface
  */
 export interface RegistryClient {
-  publish: (input: {
-    locator: string;
-    content: string;
-    description?: string;
-    tags?: string[];
-  }) => Promise<Resource>;
-  link: (input: {
-    locator: string;
-    content: string;
-    description?: string;
-    tags?: string[];
-  }) => Promise<Resource>;
-  resolve: (input: { locator: string }) => Promise<ResolveResourceResponse | null>;
+  link: (input: { folderPath: string }) => Promise<LinkResponse>;
+  resolve: (input: { locator: string }) => Promise<ResolveResponse>;
   exists: (input: { locator: string }) => Promise<ExistsResponse>;
-  delete: (input: { locator: string }) => Promise<DeleteResourceResponse>;
-  search: (input?: {
-    domain?: string;
-    type?: string;
-    name?: string;
-    limit?: number;
-    offset?: number;
-  }) => Promise<ResourceListResponse>;
+  delete: (input: { locator: string }) => Promise<CoreDeleteResponse>;
 }
 
 /**
@@ -212,82 +202,69 @@ export interface AvmClient {
  * // Type-safe API calls
  * const tenant = await client.tenant.create({ name: "My Tenant" });
  * const list = await client.tenant.list();
+ *
+ * // Link a resource folder
+ * const result = await client.registry.link({ folderPath: "/path/to/resource" });
  * ```
  */
 export function createClient(config: ClientConfig): AvmClient {
-  const cmd = commands;
-
   return {
     tenant: {
       create: (input) =>
         makeRequest<Tenant>(
           config,
-          cmd["tenant.create"].http.method,
-          cmd["tenant.create"].http.path,
+          schemas["tenant.create"].http.method,
+          schemas["tenant.create"].http.path,
           input
         ),
       get: (input) =>
         makeRequest<Tenant | null>(
           config,
-          cmd["tenant.get"].http.method,
-          cmd["tenant.get"].http.path,
+          schemas["tenant.get"].http.method,
+          schemas["tenant.get"].http.path,
           input
         ),
       list: (input = {}) =>
-        makeRequest<Tenant[]>(
-          config,
-          cmd["tenant.list"].http.method,
-          cmd["tenant.list"].http.path,
-          input
-        ),
+        makeGetRequest<Tenant[]>(config, schemas["tenant.list"].http.path, input),
       update: (input) =>
         makeRequest<Tenant | null>(
           config,
-          cmd["tenant.update"].http.method,
-          cmd["tenant.update"].http.path,
+          schemas["tenant.update"].http.method,
+          schemas["tenant.update"].http.path,
           input
         ),
       delete: (input) =>
         makeRequest<DeleteResponse>(
           config,
-          cmd["tenant.delete"].http.method,
-          cmd["tenant.delete"].http.path,
+          schemas["tenant.delete"].http.method,
+          schemas["tenant.delete"].http.path,
           input
         ),
     },
     registry: {
-      publish: (input) =>
-        makeRequest<Resource>(
-          config,
-          cmd["registry.publish"].http.method,
-          cmd["registry.publish"].http.path,
-          input
-        ),
       link: (input) =>
-        makeRequest<Resource>(
+        makeRequest<LinkResponse>(
           config,
-          cmd["registry.link"].http.method,
-          cmd["registry.link"].http.path,
+          schemas["registry.link"].http.method,
+          schemas["registry.link"].http.path,
           input
         ),
       resolve: (input) =>
-        makeRequest<ResolveResourceResponse | null>(
+        makeRequest<ResolveResponse>(
           config,
-          cmd["registry.resolve"].http.method,
-          cmd["registry.resolve"].http.path,
+          schemas["registry.resolve"].http.method,
+          schemas["registry.resolve"].http.path,
           input
         ),
       exists: (input) =>
-        makeGetRequest<ExistsResponse>(config, cmd["registry.exists"].http.path, input),
+        makeGetRequest<ExistsResponse>(config, schemas["registry.exists"].http.path, input),
       delete: (input) =>
-        makeRequest<DeleteResourceResponse>(
+        makeRequest<CoreDeleteResponse>(
           config,
-          cmd["registry.delete"].http.method,
-          cmd["registry.delete"].http.path,
+          schemas["registry.delete"].http.method,
+          schemas["registry.delete"].http.path,
           input
         ),
-      search: (input = {}) =>
-        makeGetRequest<ResourceListResponse>(config, cmd["registry.search"].http.path, input),
     },
   };
 }

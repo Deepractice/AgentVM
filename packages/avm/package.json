@@ -46,11 +46,13 @@
   },
   "dependencies": {
     "@agentvm/core": "workspace:*",
+    "@agentvm/resource-types": "workspace:*",
     "@hono/node-server": "^1.14.3",
     "commander": "^13.1.0",
     "commonxjs": "^0.1.0",
     "drizzle-orm": "^0.45.1",
-    "hono": "^4.7.10"
+    "hono": "^4.7.10",
+    "resourcexjs": "^1.0.0"
   },
   "devDependencies": {
     "agentxjs": "^1.9.0",

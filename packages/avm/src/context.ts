@@ -1,39 +1,37 @@
 /**
  * Application Context
  *
- * Creates the runtime context that provides dependencies to command handlers.
+ * Creates the runtime context that provides dependencies to handlers.
  */
 
-import type {
-  TenantRepository,
-  TenantContext,
-  ResourceRepository,
-  RegistryContext,
-} from "@agentvm/core";
+import { homedir } from "node:os";
+import type { TenantRepository } from "@agentvm/core";
+import type { Registry } from "resourcexjs";
+import { createRegistry } from "resourcexjs";
+import { agentVMTypes } from "@agentvm/resource-types";
 import { SQLiteTenantRepository } from "./repositories/SQLiteTenantRepository.js";
-import { LocalResourceRepository } from "./registry/LocalResourceRepository.js";
 
 /**
  * Application context configuration
  */
 export interface ContextConfig {
   /**
-   * Path to SQLite database
+   * Path to SQLite database for tenants
    */
   dbPath?: string;
 
   /**
-   * Path to registry database (defaults to dbPath)
+   * Path to resource registry (defaults to ~/.agentvm/resources)
    */
-  registryDbPath?: string;
+  registryPath?: string;
 }
 
 /**
  * Full application context
  */
-export interface AppContext extends TenantContext, RegistryContext {
+export interface AppContext {
   tenantRepo: TenantRepository;
-  resourceRepo: ResourceRepository;
+  registry: Registry;
 }
 
 /**
@@ -41,10 +39,10 @@ export interface AppContext extends TenantContext, RegistryContext {
  */
 export function createContext(config: ContextConfig = {}): AppContext {
   const dbPath = config.dbPath ?? ":memory:";
-  const registryDbPath = config.registryDbPath ?? dbPath;
+  const registryPath = config.registryPath ?? `${homedir()}/.agentvm/resources`;
 
   return {
     tenantRepo: new SQLiteTenantRepository(dbPath),
-    resourceRepo: new LocalResourceRepository(registryDbPath),
+    registry: createRegistry({ path: registryPath, types: agentVMTypes }),
   };
 }

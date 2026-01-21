@@ -559,8 +559,7 @@ AgentVM 需要同时支持 HTTP API 和 CLI。如果分别实现两套，会有�
 │   ├── TenantRepository.ts   # interface TenantRepository
 │   └── commands.ts           # tenant commands
 ├── resource/
-│   ├── index.ts              # re-export from ResourceX
-│   └── commands.ts           # resource commands
+│   └── commands.ts           # registry commands (uses resourcexjs directly)
 └── commands/
     ├── define.ts             # defineCommand 工具
     └── index.ts              # 聚合所有 commands
@@ -663,17 +662,17 @@ export type Commands = typeof commands;
 ```typescript
 // @agentvm/avm/src/context.ts
 import { SQLiteTenantRepository } from "./repositories/SQLiteTenantRepository.js";
-import { createRegistry } from "@agentvm/core";
+import { createRegistry } from "resourcexjs"; // 直接用 ResourceX
 
 export interface AppContext {
   tenantRepo: TenantRepository;
-  registry: Registry;
+  registry: Registry; // ResourceX Registry
 }
 
 export function createContext(config: AppConfig): AppContext {
   return {
     tenantRepo: new SQLiteTenantRepository(config.dbPath),
-    registry: createRegistry({ path: config.registryPath }),
+    registry: createRegistry({ path: config.registryPath }), // ~/.agentvm/resources
   };
 }
 ```
@@ -768,15 +767,18 @@ export function createCli(config: AppConfig) {
 ```
 Command 名称: {domain}.{action}
 
-tenant.create    → POST   /v1/tenants
-tenant.list      → GET    /v1/tenants
-tenant.get       → GET    /v1/tenants/:id
-tenant.update    → PUT    /v1/tenants/:id
-tenant.delete    → DELETE /v1/tenants/:id
+tenant.create     → POST   /v1/tenants
+tenant.list       → GET    /v1/tenants
+tenant.get        → GET    /v1/tenants/:id
+tenant.update     → PUT    /v1/tenants/:id
+tenant.delete     → DELETE /v1/tenants/:id
 
-resource.link    → POST   /v1/resources/{...}
-resource.resolve → GET    /v1/resources/{...}
-resource.delete  → DELETE /v1/resources/{...}
+# Registry (ResourceX)
+registry.link     → POST   /v1/registry/link      # folderPath → local registry
+registry.resolve  → POST   /v1/registry/resolve   # locator → RXR
+registry.exists   → GET    /v1/registry/exists    # check existence
+registry.delete   → POST   /v1/registry/delete    # remove from local
+registry.search   → GET    /v1/registry/search    # query resources
 ```
 
 ### 检查清单

@@ -80,5 +80,13 @@
     "edit": "Edit",
     "search": "Search",
     "developingFeature": "Feature in development..."
+  },
+  "errors": {
+    "VALIDATION_ERROR": "Validation failed",
+    "INTERNAL_ERROR": "Server error",
+    "TENANT_NOT_FOUND": "Tenant not found",
+    "RESOURCE_NOT_FOUND": "Resource not found",
+    "RESOURCE_LOAD_ERROR": "Failed to load resource",
+    "RESOURCE_INVALID": "Invalid resource format"
   }
 }

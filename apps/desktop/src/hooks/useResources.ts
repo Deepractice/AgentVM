@@ -1,65 +1,33 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { client } from "@/api/client";
-import type { Resource, ResourceListResponse } from "agentvm/client";
+import type { LinkResponse, ResolveResponse } from "agentvm/client";
 
-interface UseResourcesOptions {
-  domain?: string;
-  type?: string;
-  name?: string;
-  limit?: number;
-  offset?: number;
-}
+// Re-export types
+export type { LinkResponse, ResolveResponse };
 
 /**
- * Hook to search/list resources
+ * Hook to link a resource folder to local registry
  */
-export function useResources(options: UseResourcesOptions = {}) {
-  return useQuery({
-    queryKey: ["resources", options],
-    queryFn: async (): Promise<ResourceListResponse> => {
-      return client.registry.search(options);
+export function useResourceLink() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (folderPath: string) => {
+      return client.registry.link({ folderPath });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["resources"] });
     },
   });
-}
-
-/**
- * Hook to get installed resources (domain = localhost)
- */
-export function useInstalledResources(options: Omit<UseResourcesOptions, "domain"> = {}) {
-  return useResources({ ...options, domain: "localhost" });
 }
 
 /**
  * Hook to resolve a specific resource
  */
-export function useResourceResolve(locator: string | null) {
-  return useQuery({
-    queryKey: ["resource", locator],
-    queryFn: async () => {
-      if (!locator) return null;
-      return client.registry.resolve({ locator });
-    },
-    enabled: !!locator,
-  });
-}
-
-/**
- * Hook to publish a resource
- */
-export function useResourcePublish() {
-  const queryClient = useQueryClient();
-
+export function useResourceResolve() {
   return useMutation({
-    mutationFn: async (input: {
-      locator: string;
-      content: string;
-      description?: string;
-      tags?: string[];
-    }) => {
-      return client.registry.publish(input);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["resources"] });
+    mutationFn: async (locator: string) => {
+      return client.registry.resolve({ locator });
     },
   });
 }
@@ -80,4 +48,13 @@ export function useResourceDelete() {
   });
 }
 
-export type { Resource, ResourceListResponse };
+/**
+ * Hook to check if a resource exists
+ */
+export function useResourceExists() {
+  return useMutation({
+    mutationFn: async (locator: string) => {
+      return client.registry.exists({ locator });
+    },
+  });
+}

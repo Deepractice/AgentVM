@@ -13,8 +13,8 @@ import { createRXC, parseRXL } from "resourcexjs";
  */
 const promptSerializer: ResourceSerializer = {
   async serialize(rxr: RXR): Promise<Buffer> {
-    const text = await rxr.content.text();
-    return Buffer.from(text, "utf-8");
+    const buffer = await rxr.content.file("content");
+    return buffer;
   },
 
   async deserialize(data: Buffer, manifest: RXM): Promise<RXR> {
@@ -22,7 +22,7 @@ const promptSerializer: ResourceSerializer = {
     return {
       locator: parseRXL(manifest.toLocator()),
       manifest,
-      content: createRXC(text),
+      content: await createRXC({ content: text }),
     };
   },
 };
@@ -32,7 +32,8 @@ const promptSerializer: ResourceSerializer = {
  */
 const promptResolver: ResourceResolver<string> = {
   async resolve(rxr: RXR): Promise<string> {
-    return rxr.content.text();
+    const buffer = await rxr.content.file("content");
+    return buffer.toString("utf-8");
   },
 };
 

@@ -1,9 +1,14 @@
 /**
  * Resource Module
  *
- * Types and interfaces for resource registry.
+ * Registry schemas and types.
  */
 
-export * from "./types.js";
-export * from "./ResourceRepository.js";
-export * from "./commands.js";
+export {
+  registrySchemas,
+  type RegistrySchemas,
+  type LinkResponse,
+  type ResolveResponse,
+  type ExistsResponse,
+  type DeleteResponse,
+} from "./schemas.js";
