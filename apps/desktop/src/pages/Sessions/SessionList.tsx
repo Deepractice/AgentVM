@@ -57,7 +57,7 @@ export function SessionList({ selectedId, onSelect }: SessionListProps) {
   return (
     <div className="w-[260px] h-full bg-[var(--bg-secondary)] border-r border-[var(--border-light)] flex flex-col">
       {/* Search Bar */}
-      <div className="h-12 px-3 flex items-center gap-2 border-b border-[var(--border-light)]">
+      <div className="h-12 px-3 flex items-center gap-2 border-b border-[var(--border-light)] drag-region">
         <div className="flex-1 flex items-center gap-2 px-3 py-1.5 bg-[var(--bg-tertiary)] rounded-md">
           <Search className="w-4 h-4 text-[var(--text-muted)]" />
           <input

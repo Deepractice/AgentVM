@@ -61,7 +61,7 @@ export function createRegistryRoutes(ctx: AppContext) {
       const rxr = await ctx.registry.resolve(input.locator);
       const response = await rxrToResponse(rxr);
       return c.json(response);
-    } catch (error) {
+    } catch (_error) {
       return c.json({ error: "Resource not found" }, 404);
     }
   });
@@ -87,9 +87,44 @@ export function createRegistryRoutes(ctx: AppContext) {
     try {
       await ctx.registry.delete(input.locator);
       return c.json({ deleted: true });
-    } catch (error) {
+    } catch (_error) {
       return c.json({ error: "Resource not found" }, 404);
     }
+  });
+
+  // GET /v1/registry/search - Search resources
+  app.get("/search", async (c) => {
+    const query = c.req.query("query");
+    const limit = c.req.query("limit");
+    const offset = c.req.query("offset");
+
+    const input = registrySchemas["registry.search"].input.parse({
+      query,
+      limit,
+      offset,
+    });
+
+    const locators = await ctx.registry.search({
+      query: input.query,
+      limit: input.limit,
+      offset: input.offset,
+    });
+
+    const results = locators.map((rxl) => ({
+      locator: rxl.toString(),
+      domain: rxl.domain ?? "localhost",
+      path: rxl.path,
+      name: rxl.name,
+      type: rxl.type ?? "",
+      version: rxl.version ?? "latest",
+    }));
+
+    return c.json({
+      results,
+      total: results.length,
+      limit: input.limit,
+      offset: input.offset,
+    });
   });
 
   return app;

@@ -24,7 +24,7 @@ function SessionsPage() {
 
   if (!currentTenant) {
     return (
-      <div className="h-full flex items-center justify-center text-[var(--text-muted)]">
+      <div className="h-full flex items-center justify-center text-[var(--text-muted)] drag-region">
         <div className="text-center">
           <MessageSquare className="w-12 h-12 mx-auto mb-4 opacity-50" />
           <p>{t("tenant.selectFirst")}</p>
@@ -42,7 +42,7 @@ function SessionsPage() {
       {selectedSessionId ? (
         <ChatArea sessionId={selectedSessionId} sessionName={getSessionName(selectedSessionId)} />
       ) : (
-        <div className="flex-1 flex items-center justify-center bg-[var(--bg-primary)]">
+        <div className="flex-1 flex items-center justify-center bg-[var(--bg-primary)] drag-region">
           <div className="text-center">
             <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[var(--bg-tertiary)] flex items-center justify-center">
               <MessageSquare className="w-8 h-8 text-[var(--text-muted)]" />

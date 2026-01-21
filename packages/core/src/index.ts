@@ -22,6 +22,8 @@ export type {
   ResolveResponse,
   ExistsResponse,
   DeleteResponse,
+  SearchResult,
+  SearchResponse,
 } from "./resource/index.js";
 
 // Schemas (input validation + http metadata, no handlers)

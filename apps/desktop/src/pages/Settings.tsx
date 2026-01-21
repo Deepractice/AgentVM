@@ -106,7 +106,7 @@ function SettingsPage() {
     <div className="h-full flex">
       {/* Sidebar - Settings Nav */}
       <div className="w-[260px] bg-[var(--bg-secondary)] border-r border-[var(--border-light)] flex flex-col">
-        <div className="p-3 border-b border-[var(--border-light)]">
+        <div className="p-3 border-b border-[var(--border-light)] drag-region">
           <h2 className="text-sm font-medium text-[var(--text-primary)]">{t("settings.title")}</h2>
         </div>
 
@@ -134,7 +134,7 @@ function SettingsPage() {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 bg-[var(--bg-primary)] p-6">
+      <div className="flex-1 bg-[var(--bg-primary)] p-6 drag-region">
         <div className="max-w-2xl">
           <h1 className="text-xl font-medium text-[var(--text-primary)] mb-6">
             {settingsSections.find((s) => s.id === activeSection)?.label}

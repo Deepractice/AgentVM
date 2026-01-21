@@ -48,9 +48,6 @@ export function LinkResourceModal({ onClose }: LinkResourceModalProps) {
       const result = await linkMutation.mutateAsync(folderPath);
       setLinkedLocator(result.locator);
       setState("success");
-      setTimeout(() => {
-        onClose();
-      }, 1500);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
       setState("error");
@@ -128,25 +125,36 @@ export function LinkResourceModal({ onClose }: LinkResourceModalProps) {
 
         {/* Footer */}
         <div className="border-t border-[var(--border-light)] p-3 flex justify-end gap-2">
-          <button
-            onClick={onClose}
-            className="h-8 px-4 rounded text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] transition-colors"
-          >
-            {t("common.cancel")}
-          </button>
-          <button
-            onClick={handleLink}
-            disabled={!folderPath || state === "linking" || state === "success"}
-            className={cn(
-              "h-8 px-4 rounded text-sm font-medium transition-colors flex items-center gap-2",
-              folderPath && state !== "linking" && state !== "success"
-                ? "bg-[#4A7FD4] text-white hover:bg-[#3D6BB3]"
-                : "bg-[var(--bg-tertiary)] text-[var(--text-muted)] cursor-not-allowed"
-            )}
-          >
-            {state === "linking" && <Loader2 className="w-4 h-4 animate-spin" />}
-            {t("resources.linkResource")}
-          </button>
+          {state === "success" ? (
+            <button
+              onClick={onClose}
+              className="h-8 px-4 rounded text-sm font-medium bg-[#4A7FD4] text-white hover:bg-[#3D6BB3] transition-colors"
+            >
+              {t("common.done")}
+            </button>
+          ) : (
+            <>
+              <button
+                onClick={onClose}
+                className="h-8 px-4 rounded text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] transition-colors"
+              >
+                {t("common.cancel")}
+              </button>
+              <button
+                onClick={handleLink}
+                disabled={!folderPath || state === "linking"}
+                className={cn(
+                  "h-8 px-4 rounded text-sm font-medium transition-colors flex items-center gap-2",
+                  folderPath && state !== "linking"
+                    ? "bg-[#4A7FD4] text-white hover:bg-[#3D6BB3]"
+                    : "bg-[var(--bg-tertiary)] text-[var(--text-muted)] cursor-not-allowed"
+                )}
+              >
+                {state === "linking" && <Loader2 className="w-4 h-4 animate-spin" />}
+                {t("resources.linkResource")}
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>

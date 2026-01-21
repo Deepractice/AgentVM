@@ -34,6 +34,22 @@ export interface DeleteResponse {
   deleted: boolean;
 }
 
+export interface SearchResult {
+  locator: string;
+  domain: string;
+  path?: string;
+  name: string;
+  type: string;
+  version: string;
+}
+
+export interface SearchResponse {
+  results: SearchResult[];
+  total: number;
+  limit: number;
+  offset: number;
+}
+
 /**
  * Registry command schemas (no handlers - they are in avm)
  */
@@ -67,6 +83,16 @@ export const registrySchemas = {
     http: { method: "POST" as const, path: "/v1/registry/delete" },
     input: z.object({
       locator: z.string().min(1),
+    }),
+  },
+
+  "registry.search": {
+    description: "Search resources in the registry",
+    http: { method: "GET" as const, path: "/v1/registry/search" },
+    input: z.object({
+      query: z.string().optional(),
+      limit: z.coerce.number().int().min(1).max(100).optional().default(20),
+      offset: z.coerce.number().int().min(0).optional().default(0),
     }),
   },
 };

@@ -1,33 +1,12 @@
 import { useState, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { Search, Plus, Package } from "lucide-react";
+import { Search, Plus, Package, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ResourceCard } from "./ResourceCard";
 import { LinkResourceModal } from "@/components/resources/LinkResourceModal";
+import { useResourceSearch } from "@/hooks/useResources";
 
 type FilterType = "all" | "prompt" | "tool";
-
-// Mock data
-const mockLocalResources = [
-  {
-    id: "1",
-    name: "system-prompt",
-    description: "Default system prompt for AI assistants with comprehensive instructions",
-    type: "prompt",
-    version: "1.0.0",
-    domain: "localhost",
-    locator: "localhost/sean/system-prompt.prompt@1.0.0",
-  },
-  {
-    id: "2",
-    name: "file-reader",
-    description: "Read and parse various file formats including PDF, DOCX, and more",
-    type: "tool",
-    version: "1.2.0",
-    domain: "localhost",
-    locator: "localhost/tools/file-reader.tool@1.2.0",
-  },
-];
 
 export function LocalView() {
   const { t } = useTranslation();
@@ -35,21 +14,20 @@ export function LocalView() {
   const [activeFilter, setActiveFilter] = useState<FilterType>("all");
   const [showLinkModal, setShowLinkModal] = useState(false);
 
+  // Fetch resources from API
+  const { data, isLoading, isError } = useResourceSearch({
+    query: searchQuery || undefined,
+  });
+
+  // Filter by type (done client-side)
   const filteredResources = useMemo(() => {
-    return mockLocalResources.filter((resource) => {
+    if (!data?.results) return [];
+
+    return data.results.filter((resource) => {
       if (activeFilter !== "all" && resource.type !== activeFilter) return false;
-
-      if (searchQuery) {
-        const query = searchQuery.toLowerCase();
-        return (
-          resource.name.toLowerCase().includes(query) ||
-          resource.description?.toLowerCase().includes(query)
-        );
-      }
-
       return true;
     });
-  }, [searchQuery, activeFilter]);
+  }, [data?.results, activeFilter]);
 
   const filters: { id: FilterType; labelKey: string }[] = [
     { id: "all", labelKey: "resources.all" },
@@ -116,13 +94,23 @@ export function LocalView() {
 
       {/* Resource List */}
       <div className="flex-1 overflow-y-auto px-6 pb-6">
-        {filteredResources.length > 0 ? (
+        {isLoading ? (
+          <div className="h-full flex flex-col items-center justify-center">
+            <Loader2 className="w-8 h-8 text-[var(--text-muted)] animate-spin" />
+          </div>
+        ) : isError ? (
+          <div className="h-full flex flex-col items-center justify-center">
+            <div className="w-16 h-16 rounded-2xl bg-[var(--bg-tertiary)] flex items-center justify-center mb-4">
+              <Package className="w-8 h-8 text-[var(--text-muted)]" />
+            </div>
+            <p className="text-sm text-[var(--text-muted)]">{t("common.error")}</p>
+          </div>
+        ) : filteredResources.length > 0 ? (
           <div className="grid gap-3">
             {filteredResources.map((resource) => (
               <ResourceCard
-                key={resource.id}
+                key={resource.locator}
                 name={resource.name}
-                description={resource.description}
                 type={resource.type}
                 version={resource.version}
                 domain={resource.domain}

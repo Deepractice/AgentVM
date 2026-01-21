@@ -84,6 +84,7 @@
     "delete": "删除",
     "edit": "编辑",
     "search": "搜索",
+    "done": "完成",
     "developingFeature": "功能开发中..."
   },
   "errors": {

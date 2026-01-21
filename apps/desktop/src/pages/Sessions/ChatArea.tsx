@@ -95,7 +95,7 @@ export function ChatArea({ sessionId: _sessionId, sessionName }: ChatAreaProps) 
   return (
     <div className="flex-1 flex flex-col bg-[var(--bg-primary)]">
       {/* Header */}
-      <div className="h-12 px-4 flex items-center justify-between border-b border-[var(--border-light)]">
+      <div className="h-12 px-4 flex items-center justify-between border-b border-[var(--border-light)] drag-region">
         <span className="text-sm font-medium text-[var(--text-primary)]">{sessionName}</span>
         <button className="w-8 h-8 flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] rounded transition-colors">
           <MoreHorizontal className="w-5 h-5" />

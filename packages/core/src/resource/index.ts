@@ -11,4 +11,6 @@ export {
   type ResolveResponse,
   type ExistsResponse,
   type DeleteResponse,
+  type SearchResult,
+  type SearchResponse,
 } from "./schemas.js";

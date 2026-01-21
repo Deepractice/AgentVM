@@ -12,11 +12,12 @@ import {
   type ResolveResponse,
   type ExistsResponse,
   type DeleteResponse as CoreDeleteResponse,
+  type SearchResponse,
 } from "@agentvm/core";
 import { type ApiError } from "../http/errors.js";
 
 // Re-export types for client consumers
-export type { Tenant, LinkResponse, ResolveResponse, ExistsResponse };
+export type { Tenant, LinkResponse, ResolveResponse, ExistsResponse, SearchResponse };
 export type { ApiError };
 
 /**
@@ -182,6 +183,7 @@ export interface RegistryClient {
   resolve: (input: { locator: string }) => Promise<ResolveResponse>;
   exists: (input: { locator: string }) => Promise<ExistsResponse>;
   delete: (input: { locator: string }) => Promise<CoreDeleteResponse>;
+  search: (input: { query?: string; limit?: number; offset?: number }) => Promise<SearchResponse>;
 }
 
 /**
@@ -265,6 +267,8 @@ export function createClient(config: ClientConfig): AvmClient {
           schemas["registry.delete"].http.path,
           input
         ),
+      search: (input) =>
+        makeGetRequest<SearchResponse>(config, schemas["registry.search"].http.path, input),
     },
   };
 }

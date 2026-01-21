@@ -19,7 +19,7 @@ export function ResourceNav({ activeSection, onSectionChange }: ResourceNavProps
   const { t } = useTranslation();
 
   return (
-    <div className="w-[200px] h-full bg-[var(--bg-secondary)] border-r border-[var(--border-light)] flex flex-col py-4">
+    <div className="w-[200px] h-full bg-[var(--bg-secondary)] border-r border-[var(--border-light)] flex flex-col pt-7 pb-4 drag-region">
       {sections.map((section) => {
         const Icon = section.icon;
         const isActive = activeSection === section.id;

@@ -8,7 +8,7 @@ function AgentsPage() {
 
   if (!currentTenant) {
     return (
-      <div className="h-full flex items-center justify-center text-[var(--text-muted)]">
+      <div className="h-full flex items-center justify-center text-[var(--text-muted)] drag-region">
         <div className="text-center">
           <Bot className="w-12 h-12 mx-auto mb-4 opacity-50" />
           <p>{t("tenant.selectFirst")}</p>
@@ -21,7 +21,7 @@ function AgentsPage() {
     <div className="h-full flex">
       {/* Sidebar - Agent List */}
       <div className="w-[260px] bg-[var(--bg-secondary)] border-r border-[var(--border-light)] flex flex-col">
-        <div className="p-3 border-b border-[var(--border-light)]">
+        <div className="p-3 border-b border-[var(--border-light)] drag-region">
           <h2 className="text-sm font-medium text-[var(--text-primary)]">{t("agents.title")}</h2>
         </div>
 
@@ -43,7 +43,7 @@ function AgentsPage() {
       </div>
 
       {/* Main Content - Agent Detail */}
-      <div className="flex-1 flex items-center justify-center bg-[var(--bg-primary)]">
+      <div className="flex-1 flex items-center justify-center bg-[var(--bg-primary)] drag-region">
         <div className="text-center">
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[var(--bg-tertiary)] flex items-center justify-center">
             <Bot className="w-8 h-8 text-[var(--text-muted)]" />

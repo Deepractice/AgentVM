@@ -79,6 +79,7 @@
     "delete": "Delete",
     "edit": "Edit",
     "search": "Search",
+    "done": "Done",
     "developingFeature": "Feature in development..."
   },
   "errors": {
