@@ -43,7 +43,19 @@
     "publishResource": "Publish Resource",
     "install": "Install",
     "noPublished": "No published resources",
-    "publishHint": "Publish your resources to share with others"
+    "publishHint": "Publish your resources to share with others",
+    "resolve": "Resolve",
+    "enterParameters": "Enter parameters to execute this resource",
+    "resolveResult": "Result",
+    "execute": "Execute",
+    "about": "About",
+    "content": "Content",
+    "versions": "Versions",
+    "parameters": "Parameters",
+    "type": "Type",
+    "domain": "Domain",
+    "version": "Version",
+    "description": "Description"
   },
   "settings": {
     "title": "Settings",
@@ -80,6 +92,9 @@
     "edit": "Edit",
     "search": "Search",
     "done": "Done",
+    "back": "Back",
+    "copy": "Copy",
+    "copied": "Copied",
     "developingFeature": "Feature in development..."
   },
   "errors": {

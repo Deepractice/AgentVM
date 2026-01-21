@@ -48,7 +48,19 @@
     "resourceJsonNotFound": "未找到 resource.json 文件",
     "contentFileNotFound": "未找到 content 文件",
     "invalidResourceJson": "resource.json 格式错误",
-    "missingRequiredFields": "缺少必填字段（name、type、version）"
+    "missingRequiredFields": "缺少必填字段（name、type、version）",
+    "resolve": "解析",
+    "enterParameters": "输入参数以执行此资源",
+    "resolveResult": "结果",
+    "execute": "执行",
+    "about": "关于",
+    "content": "内容",
+    "versions": "版本",
+    "parameters": "参数",
+    "type": "类型",
+    "domain": "域名",
+    "version": "版本",
+    "description": "描述"
   },
   "settings": {
     "title": "设置",
@@ -85,6 +97,9 @@
     "edit": "编辑",
     "search": "搜索",
     "done": "完成",
+    "back": "返回",
+    "copy": "复制",
+    "copied": "已复制",
     "developingFeature": "功能开发中..."
   },
   "errors": {

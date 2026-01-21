@@ -9,6 +9,7 @@ import {
   schemas,
   type Tenant,
   type LinkResponse,
+  type ResourceDetailResponse,
   type ResolveResponse,
   type ExistsResponse,
   type DeleteResponse as CoreDeleteResponse,
@@ -17,7 +18,14 @@ import {
 import { type ApiError } from "../http/errors.js";
 
 // Re-export types for client consumers
-export type { Tenant, LinkResponse, ResolveResponse, ExistsResponse, SearchResponse };
+export type {
+  Tenant,
+  LinkResponse,
+  ResourceDetailResponse,
+  ResolveResponse,
+  ExistsResponse,
+  SearchResponse,
+};
 export type { ApiError };
 
 /**
@@ -180,7 +188,8 @@ export interface TenantClient {
  */
 export interface RegistryClient {
   link: (input: { folderPath: string }) => Promise<LinkResponse>;
-  resolve: (input: { locator: string }) => Promise<ResolveResponse>;
+  getResource: (input: { locator: string }) => Promise<ResourceDetailResponse>;
+  resolve: (input: { locator: string; args?: Record<string, unknown> }) => Promise<ResolveResponse>;
   exists: (input: { locator: string }) => Promise<ExistsResponse>;
   delete: (input: { locator: string }) => Promise<CoreDeleteResponse>;
   search: (input: { query?: string; limit?: number; offset?: number }) => Promise<SearchResponse>;
@@ -249,6 +258,12 @@ export function createClient(config: ClientConfig): AvmClient {
           config,
           schemas["registry.link"].http.method,
           schemas["registry.link"].http.path,
+          input
+        ),
+      getResource: (input) =>
+        makeGetRequest<ResourceDetailResponse>(
+          config,
+          schemas["registry.resource"].http.path,
           input
         ),
       resolve: (input) =>

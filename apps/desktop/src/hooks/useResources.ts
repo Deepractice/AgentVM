@@ -1,9 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { client } from "@/api/client";
-import type { LinkResponse, ResolveResponse, SearchResponse } from "agentvm/client";
+import type {
+  LinkResponse,
+  ResourceDetailResponse,
+  ResolveResponse,
+  SearchResponse,
+} from "agentvm/client";
 
 // Re-export types
-export type { LinkResponse, ResolveResponse, SearchResponse };
+export type { LinkResponse, ResourceDetailResponse, ResolveResponse, SearchResponse };
 
 /**
  * Hook to link a resource folder to local registry
@@ -22,12 +27,25 @@ export function useResourceLink() {
 }
 
 /**
+ * Hook to get resource details (without execution)
+ */
+export function useResourceDetail(locator: string) {
+  return useQuery({
+    queryKey: ["resource", "detail", locator],
+    queryFn: async () => {
+      return client.registry.getResource({ locator });
+    },
+    enabled: !!locator,
+  });
+}
+
+/**
  * Hook to resolve a specific resource
  */
 export function useResourceResolve() {
   return useMutation({
-    mutationFn: async (locator: string) => {
-      return client.registry.resolve({ locator });
+    mutationFn: async (input: { locator: string; args?: Record<string, unknown> }) => {
+      return client.registry.resolve(input);
     },
   });
 }

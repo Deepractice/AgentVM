@@ -9,31 +9,6 @@ import { Hono } from "hono";
 import { registrySchemas } from "@agentvm/core";
 import type { AppContext } from "../context.js";
 import { loadResource } from "resourcexjs";
-import type { RXR } from "resourcexjs";
-
-/**
- * Convert RXR to response format
- */
-async function rxrToResponse(rxr: RXR) {
-  // Get all files from RXC archive
-  const filesMap = await rxr.content.files();
-  const files: Record<string, string> = {};
-  for (const [path, buffer] of filesMap) {
-    files[path] = buffer.toString("utf-8");
-  }
-
-  return {
-    locator: rxr.locator.toString(),
-    manifest: {
-      domain: rxr.manifest.domain,
-      path: rxr.manifest.path,
-      name: rxr.manifest.name,
-      type: rxr.manifest.type,
-      version: rxr.manifest.version,
-    },
-    files,
-  };
-}
 
 /**
  * Create registry routes (RPC style)
@@ -52,17 +27,63 @@ export function createRegistryRoutes(ctx: AppContext) {
     return c.json({ locator: rxr.locator.toString() }, 201);
   });
 
-  // POST /v1/registry/resolve - Resolve a resource
+  // GET /v1/registry/resource - Get resource details (without executing)
+  app.get("/resource", async (c) => {
+    const locator = c.req.query("locator");
+    if (!locator) {
+      return c.json({ error: "locator query parameter is required" }, 400);
+    }
+
+    try {
+      const resolved = await ctx.registry.resolve(locator);
+      const rxr = resolved.resource;
+
+      return c.json({
+        locator: rxr.locator.toString(),
+        manifest: {
+          domain: rxr.manifest.domain,
+          path: rxr.manifest.path,
+          name: rxr.manifest.name,
+          type: rxr.manifest.type,
+          version: rxr.manifest.version,
+          description: (rxr.manifest as { description?: string }).description,
+        },
+        schema: resolved.schema,
+      });
+    } catch (error) {
+      console.error("Get resource error:", error);
+      return c.json({ error: error instanceof Error ? error.message : "Resource not found" }, 404);
+    }
+  });
+
+  // POST /v1/registry/resolve - Execute resolve to get content
   app.post("/resolve", async (c) => {
     const body = await c.req.json();
     const input = registrySchemas["registry.resolve"].input.parse(body);
 
     try {
-      const rxr = await ctx.registry.resolve(input.locator);
-      const response = await rxrToResponse(rxr);
-      return c.json(response);
-    } catch (_error) {
-      return c.json({ error: "Resource not found" }, 404);
+      const resolved = await ctx.registry.resolve(input.locator);
+      const rxr = resolved.resource;
+
+      // Execute with optional args to get content
+
+      const content = await resolved.execute(input.args as any);
+
+      return c.json({
+        locator: rxr.locator.toString(),
+        manifest: {
+          domain: rxr.manifest.domain,
+          path: rxr.manifest.path,
+          name: rxr.manifest.name,
+          type: rxr.manifest.type,
+          version: rxr.manifest.version,
+        },
+        content,
+        schema: resolved.schema,
+      });
+    } catch (error) {
+      console.error("Resolve error:", error);
+      return c.json({ error: error instanceof Error ? error.message : "Resource not found" }, 404);
     }
   });
 

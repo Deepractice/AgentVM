@@ -28,12 +28,19 @@ const promptSerializer: ResourceSerializer = {
 };
 
 /**
- * Prompt resolver - returns content as string
+ * Prompt resolver - returns content as string (no parameters)
  */
-const promptResolver: ResourceResolver<string> = {
-  async resolve(rxr: RXR): Promise<string> {
-    const buffer = await rxr.content.file("content");
-    return buffer.toString("utf-8");
+const promptResolver: ResourceResolver<void, string> = {
+  schema: undefined,
+  async resolve(rxr: RXR) {
+    return {
+      resource: rxr,
+      schema: undefined,
+      execute: async () => {
+        const buffer = await rxr.content.file("content");
+        return buffer.toString("utf-8");
+      },
+    };
   },
 };
 
@@ -42,7 +49,7 @@ const promptResolver: ResourceResolver<string> = {
  *
  * Used for storing AI system prompts, templates, and instructions.
  */
-export const promptType: ResourceType<string> = {
+export const promptType: ResourceType<void, string> = {
   name: "prompt",
   aliases: ["template", "system-prompt"],
   description: "AI prompt template",

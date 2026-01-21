@@ -19,11 +19,14 @@ export type {
 // Registry response types
 export type {
   LinkResponse,
+  ResourceDetailResponse,
   ResolveResponse,
   ExistsResponse,
   DeleteResponse,
   SearchResult,
   SearchResponse,
+  JSONSchema,
+  JSONSchemaProperty,
 } from "./resource/index.js";
 
 // Schemas (input validation + http metadata, no handlers)

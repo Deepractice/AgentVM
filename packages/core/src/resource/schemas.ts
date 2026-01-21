@@ -14,6 +14,43 @@ export interface LinkResponse {
   locator: string;
 }
 
+/**
+ * JSON Schema property definition (mirrors ResourceX JSONSchemaProperty)
+ */
+export interface JSONSchemaProperty {
+  type: "string" | "number" | "integer" | "boolean" | "object" | "array" | "null";
+  description?: string;
+  default?: unknown;
+  enum?: unknown[];
+  items?: JSONSchemaProperty;
+  properties?: Record<string, JSONSchemaProperty>;
+  required?: string[];
+}
+
+/**
+ * JSON Schema definition for resolver arguments
+ */
+export interface JSONSchema extends JSONSchemaProperty {
+  $schema?: string;
+  title?: string;
+}
+
+/** Response for GET /resource (details without execution) */
+export interface ResourceDetailResponse {
+  locator: string;
+  manifest: {
+    domain: string;
+    path?: string;
+    name: string;
+    type: string;
+    version: string;
+    description?: string;
+  };
+  /** JSON Schema for arguments (undefined if no arguments needed) */
+  schema?: JSONSchema;
+}
+
+/** Response for POST /resolve (with execution) */
 export interface ResolveResponse {
   locator: string;
   manifest: {
@@ -23,7 +60,10 @@ export interface ResolveResponse {
     type: string;
     version: string;
   };
-  files: Record<string, string>;
+  /** Resolved content (rendered by resolver) */
+  content: unknown;
+  /** JSON Schema for arguments (undefined if no arguments needed) */
+  schema?: JSONSchema;
 }
 
 export interface ExistsResponse {
@@ -62,11 +102,21 @@ export const registrySchemas = {
     }),
   },
 
+  "registry.resource": {
+    description: "Get resource details without executing",
+    http: { method: "GET" as const, path: "/v1/registry/resource" },
+    input: z.object({
+      locator: z.string().min(1),
+    }),
+  },
+
   "registry.resolve": {
     description: "Resolve a resource from the registry",
     http: { method: "POST" as const, path: "/v1/registry/resolve" },
     input: z.object({
       locator: z.string().min(1),
+      /** Arguments to pass to resolver (optional, for resources with parameters) */
+      args: z.record(z.unknown()).optional(),
     }),
   },
 

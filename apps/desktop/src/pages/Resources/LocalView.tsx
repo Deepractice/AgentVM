@@ -8,7 +8,11 @@ import { useResourceSearch } from "@/hooks/useResources";
 
 type FilterType = "all" | "prompt" | "tool";
 
-export function LocalView() {
+interface LocalViewProps {
+  onResourceSelect?: (locator: string) => void;
+}
+
+export function LocalView({ onResourceSelect }: LocalViewProps) {
   const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterType>("all");
@@ -115,7 +119,7 @@ export function LocalView() {
                 version={resource.version}
                 domain={resource.domain}
                 locator={resource.locator}
-                onClick={() => console.log("clicked", resource.locator)}
+                onClick={() => onResourceSelect?.(resource.locator)}
               />
             ))}
           </div>
