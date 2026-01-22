@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, Play, Copy, Check, Loader2, AlertCircle, FileText, Wrench, Package } from "lucide-react";
+import { ArrowLeft, Play, Copy, Check, Loader2, AlertCircle, FileText, Wrench, Package, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useResourceDetail, useResourceResolve } from "@/hooks/useResources";
+import { useResourceDetail, useResourceResolve, useResourceDelete } from "@/hooks/useResources";
 import type { ResolveResponse } from "agentvm/client";
 
 interface ResourceDetailProps {
@@ -10,7 +10,7 @@ interface ResourceDetailProps {
   onBack: () => void;
 }
 
-type TabType = "resolve" | "content" | "versions";
+type TabType = "resolve" | "content" | "versions" | "config";
 
 /** JSON Schema property definition */
 interface JSONSchemaProperty {
@@ -48,10 +48,13 @@ export function ResourceDetail({ locator, onBack }: ResourceDetailProps) {
   const [result, setResult] = useState<ResolveResponse | null>(null);
   const [copied, setCopied] = useState(false);
   const [executeError, setExecuteError] = useState<string | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteConfirmInput, setDeleteConfirmInput] = useState("");
 
   // Load resource details
   const { data: resource, isLoading: loading, isError, error } = useResourceDetail(locator);
   const resolveMutation = useResourceResolve();
+  const deleteMutation = useResourceDelete();
 
   const config = typeConfig[resource?.manifest.type || "default"] || typeConfig.default;
   const Icon = config.icon;
@@ -121,7 +124,20 @@ export function ResourceDetail({ locator, onBack }: ResourceDetailProps) {
     { id: "resolve", labelKey: "resources.resolve" },
     { id: "content", labelKey: "resources.content" },
     { id: "versions", labelKey: "resources.versions" },
+    { id: "config", labelKey: "resources.config" },
   ];
+
+  const handleDelete = async () => {
+    if (deleteConfirmInput !== locator) return;
+
+    try {
+      await deleteMutation.mutateAsync(locator);
+      setShowDeleteConfirm(false);
+      onBack();
+    } catch (err) {
+      // Error handled by mutation
+    }
+  };
 
   const schema = resource?.schema as JSONSchema | undefined;
   const hasSchema = schema?.properties && Object.keys(schema.properties).length > 0;
@@ -346,6 +362,38 @@ export function ResourceDetail({ locator, onBack }: ResourceDetailProps) {
               </p>
             </div>
           )}
+
+          {activeTab === "config" && (
+            <div className="space-y-6">
+              {/* Danger Zone */}
+              <div className="rounded-lg border border-[var(--accent-error)]/30 overflow-hidden">
+                <div className="px-4 py-3 bg-[var(--accent-error)]/5 border-b border-[var(--accent-error)]/30">
+                  <h3 className="text-sm font-medium text-[var(--accent-error)]">
+                    {t("resources.dangerZone")}
+                  </h3>
+                </div>
+                <div className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-[var(--text-primary)]">
+                        {t("resources.deleteResource")}
+                      </p>
+                      <p className="text-xs text-[var(--text-muted)] mt-1">
+                        {t("resources.deleteResourceDesc")}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setShowDeleteConfirm(true)}
+                      className="h-8 px-3 rounded-lg flex items-center gap-2 text-sm font-medium border border-[var(--accent-error)] text-[var(--accent-error)] hover:bg-[var(--accent-error)] hover:text-white transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      {t("common.delete")}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
           </div>
 
           {/* About Panel - 紧贴内容 */}
@@ -397,6 +445,91 @@ export function ResourceDetail({ locator, onBack }: ResourceDetailProps) {
           </div>
         </div>
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+          <div className="bg-[var(--bg-card)] rounded-xl w-[480px] shadow-xl border border-[var(--border-light)]">
+            {/* Header */}
+            <div className="px-4 py-3 border-b border-[var(--border-light)]">
+              <h2 className="text-base font-medium text-[var(--accent-error)]">
+                {t("resources.deleteResource")}
+              </h2>
+            </div>
+
+            {/* Content */}
+            <div className="p-4 space-y-4">
+              <p className="text-sm text-[var(--text-secondary)]">
+                {t("resources.deleteConfirmMessage")}
+              </p>
+
+              <div className="p-3 bg-[var(--bg-secondary)] rounded-lg">
+                <code className="text-sm font-mono text-[var(--text-primary)] break-all">
+                  {locator}
+                </code>
+              </div>
+
+              <div>
+                <label className="block text-sm text-[var(--text-secondary)] mb-2">
+                  {t("resources.deleteConfirmLabel")}
+                </label>
+                <input
+                  type="text"
+                  value={deleteConfirmInput}
+                  onChange={(e) => setDeleteConfirmInput(e.target.value)}
+                  placeholder={locator}
+                  className={cn(
+                    "w-full h-10 px-3 rounded-lg",
+                    "bg-[var(--bg-card)] border",
+                    deleteConfirmInput === locator
+                      ? "border-[var(--accent-error)]"
+                      : "border-[var(--border-light)]",
+                    "text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)]",
+                    "outline-none focus:border-[var(--border-medium)] transition-colors"
+                  )}
+                />
+              </div>
+
+              {deleteMutation.isError && (
+                <div className="p-3 bg-red-50 rounded-lg flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                  <p className="text-sm text-red-600">
+                    {deleteMutation.error instanceof Error
+                      ? deleteMutation.error.message
+                      : t("common.error")}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="border-t border-[var(--border-light)] p-3 flex justify-end gap-2">
+              <button
+                onClick={() => {
+                  setShowDeleteConfirm(false);
+                  setDeleteConfirmInput("");
+                }}
+                className="h-8 px-4 rounded text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] transition-colors"
+              >
+                {t("common.cancel")}
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={deleteConfirmInput !== locator || deleteMutation.isPending}
+                className={cn(
+                  "h-8 px-4 rounded text-sm font-medium transition-colors flex items-center gap-2",
+                  deleteConfirmInput === locator && !deleteMutation.isPending
+                    ? "bg-[var(--accent-error)] text-white hover:bg-[var(--accent-error)]/90"
+                    : "bg-[var(--bg-tertiary)] text-[var(--text-muted)] cursor-not-allowed"
+                )}
+              >
+                {deleteMutation.isPending && <Loader2 className="w-4 h-4 animate-spin" />}
+                {t("resources.confirmDelete")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

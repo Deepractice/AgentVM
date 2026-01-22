@@ -55,7 +55,14 @@
     "type": "Type",
     "domain": "Domain",
     "version": "Version",
-    "description": "Description"
+    "description": "Description",
+    "config": "Config",
+    "dangerZone": "Danger Zone",
+    "deleteResource": "Delete Resource",
+    "deleteResourceDesc": "Once deleted, this resource will be removed from the local registry and cannot be recovered",
+    "deleteConfirmMessage": "This action cannot be undone. Please enter the full resource locator to confirm deletion:",
+    "deleteConfirmLabel": "Enter resource locator to confirm",
+    "confirmDelete": "Confirm Delete"
   },
   "settings": {
     "title": "Settings",

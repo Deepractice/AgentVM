@@ -51,6 +51,6 @@
     "bun": ">=1.3.0"
   },
   "dependencies": {
-    "resourcexjs": "^1.5.0"
+    "resourcexjs": "^1.6.0"
   }
 }
