@@ -21,8 +21,8 @@ export function PublishView() {
           <button
             className={cn(
               "h-8 px-3 rounded-lg flex items-center gap-2",
-              "bg-[#4A7FD4] text-white text-sm font-medium",
-              "hover:bg-[#3D6BB3] transition-colors"
+              "bg-[var(--accent-primary)] text-white text-sm font-medium",
+              "hover:bg-[var(--accent-hover)] transition-colors"
             )}
           >
             <Plus className="w-4 h-4" />

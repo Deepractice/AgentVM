@@ -19,7 +19,14 @@ export function ResourceNav({ activeSection, onSectionChange }: ResourceNavProps
   const { t } = useTranslation();
 
   return (
-    <div className="w-[200px] h-full bg-[var(--bg-secondary)] border-r border-[var(--border-light)] flex flex-col pt-7 pb-4 drag-region">
+    <div className="w-[260px] h-full bg-[var(--bg-secondary)] border-r border-[var(--border-light)] flex flex-col">
+      {/* Header */}
+      <div className="h-[60px] px-3 flex items-center border-b border-[var(--border-light)] drag-region">
+        <h2 className="text-[15px] font-medium text-[var(--text-primary)]">{t("resources.title")}</h2>
+      </div>
+
+      {/* Nav Items */}
+      <div className="flex-1 overflow-y-auto p-2">
       {sections.map((section) => {
         const Icon = section.icon;
         const isActive = activeSection === section.id;
@@ -29,9 +36,9 @@ export function ResourceNav({ activeSection, onSectionChange }: ResourceNavProps
             key={section.id}
             onClick={() => onSectionChange(section.id)}
             className={cn(
-              "mx-2 px-3 py-2.5 rounded-lg flex items-center gap-3 transition-colors text-left",
+              "w-full px-3 py-2 rounded-lg flex items-center gap-3 transition-colors text-left",
               isActive
-                ? "bg-[var(--bg-card)] text-[var(--text-primary)] shadow-sm"
+                ? "bg-[var(--bg-tertiary)] text-[var(--text-primary)]"
                 : "text-[var(--text-secondary)] hover:bg-[var(--bg-tertiary)] hover:text-[var(--text-primary)]"
             )}
           >
@@ -40,6 +47,7 @@ export function ResourceNav({ activeSection, onSectionChange }: ResourceNavProps
           </button>
         );
       })}
+      </div>
     </div>
   );
 }

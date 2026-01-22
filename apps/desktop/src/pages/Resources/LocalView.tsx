@@ -51,8 +51,8 @@ export function LocalView({ onResourceSelect }: LocalViewProps) {
             onClick={() => setShowLinkModal(true)}
             className={cn(
               "h-8 px-3 rounded-lg flex items-center gap-2",
-              "bg-[#4A7FD4] text-white text-sm font-medium",
-              "hover:bg-[#3D6BB3] transition-colors"
+              "bg-[var(--accent-primary)] text-white text-sm font-medium",
+              "hover:bg-[var(--accent-hover)] transition-colors"
             )}
           >
             <Plus className="w-4 h-4" />
@@ -86,7 +86,7 @@ export function LocalView({ onResourceSelect }: LocalViewProps) {
               className={cn(
                 "px-3 py-1 text-xs font-medium rounded-full transition-all duration-200",
                 activeFilter === filter.id
-                  ? "bg-[var(--text-primary)] text-white"
+                  ? "bg-[var(--accent-primary)] text-white"
                   : "bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--border-light)]"
               )}
             >

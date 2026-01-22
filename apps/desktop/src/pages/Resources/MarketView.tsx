@@ -100,7 +100,7 @@ export function MarketView() {
               className={cn(
                 "px-3 py-1 text-xs font-medium rounded-full transition-all duration-200",
                 activeFilter === filter.id
-                  ? "bg-[var(--text-primary)] text-white"
+                  ? "bg-[var(--accent-primary)] text-white"
                   : "bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--border-light)]"
               )}
             >
@@ -132,8 +132,8 @@ export function MarketView() {
                   }}
                   className={cn(
                     "absolute top-4 right-4 h-7 px-3 rounded-md flex items-center gap-1.5",
-                    "bg-[#4A7FD4] text-white text-xs font-medium",
-                    "hover:bg-[#3D6BB3] transition-colors"
+                    "bg-[var(--accent-primary)] text-white text-xs font-medium",
+                    "hover:bg-[var(--accent-hover)] transition-colors"
                   )}
                 >
                   <Download className="w-3.5 h-3.5" />

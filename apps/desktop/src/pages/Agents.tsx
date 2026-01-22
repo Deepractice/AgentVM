@@ -21,8 +21,8 @@ function AgentsPage() {
     <div className="h-full flex">
       {/* Sidebar - Agent List */}
       <div className="w-[260px] bg-[var(--bg-secondary)] border-r border-[var(--border-light)] flex flex-col">
-        <div className="p-3 border-b border-[var(--border-light)] drag-region">
-          <h2 className="text-sm font-medium text-[var(--text-primary)]">{t("agents.title")}</h2>
+        <div className="h-[60px] px-3 flex items-center border-b border-[var(--border-light)] drag-region">
+          <h2 className="text-[15px] font-medium text-[var(--text-primary)]">{t("agents.title")}</h2>
         </div>
 
         <div className="flex-1 overflow-y-auto p-2">

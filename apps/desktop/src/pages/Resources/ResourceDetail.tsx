@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { ArrowLeft, Play, Copy, Check, Loader2, AlertCircle } from "lucide-react";
+import { ArrowLeft, Play, Copy, Check, Loader2, AlertCircle, FileText, Wrench, Package } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useResourceDetail, useResourceResolve } from "@/hooks/useResources";
 import type { ResolveResponse } from "agentvm/client";
@@ -26,6 +26,21 @@ interface JSONSchema {
   required?: string[];
 }
 
+const typeConfig: Record<string, { icon: typeof FileText; color: string }> = {
+  prompt: {
+    icon: FileText,
+    color: "text-amber-600 bg-amber-50",
+  },
+  tool: {
+    icon: Wrench,
+    color: "text-blue-600 bg-blue-50",
+  },
+  default: {
+    icon: Package,
+    color: "text-[var(--text-secondary)] bg-[var(--bg-tertiary)]",
+  },
+};
+
 export function ResourceDetail({ locator, onBack }: ResourceDetailProps) {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState<TabType>("resolve");
@@ -37,6 +52,9 @@ export function ResourceDetail({ locator, onBack }: ResourceDetailProps) {
   // Load resource details
   const { data: resource, isLoading: loading, isError, error } = useResourceDetail(locator);
   const resolveMutation = useResourceResolve();
+
+  const config = typeConfig[resource?.manifest.type || "default"] || typeConfig.default;
+  const Icon = config.icon;
 
   // Initialize args with defaults from schema
   useEffect(() => {
@@ -119,13 +137,15 @@ export function ResourceDetail({ locator, onBack }: ResourceDetailProps) {
   if (isError) {
     return (
       <div className="flex-1 flex flex-col items-center justify-center bg-[var(--bg-primary)]">
-        <AlertCircle className="w-8 h-8 text-red-500 mb-2" />
-        <p className="text-sm text-[var(--text-muted)]">
+        <div className="w-16 h-16 rounded-2xl bg-[var(--bg-tertiary)] flex items-center justify-center mb-4">
+          <AlertCircle className="w-8 h-8 text-[var(--accent-error)]" />
+        </div>
+        <p className="text-sm text-[var(--text-muted)] mb-4">
           {error instanceof Error ? error.message : "Failed to load resource"}
         </p>
         <button
           onClick={onBack}
-          className="mt-4 text-sm text-[#4A7FD4] hover:underline"
+          className="text-sm text-[var(--accent-primary)] hover:underline"
         >
           {t("common.back")}
         </button>
@@ -134,40 +154,54 @@ export function ResourceDetail({ locator, onBack }: ResourceDetailProps) {
   }
 
   return (
-    <div className="flex-1 flex bg-[var(--bg-primary)]">
+    <div className="flex-1 flex bg-[var(--bg-primary)] overflow-hidden">
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Header */}
-        <div className="shrink-0 px-6 pt-6 pb-4 border-b border-[var(--border-light)] drag-region">
-          <div className="flex items-center gap-3 mb-2">
+        <div className="shrink-0 px-6 pt-6 pb-4 drag-region">
+          {/* Back & Title Row */}
+          <div className="flex items-center gap-4 mb-4">
             <button
               onClick={onBack}
-              className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors no-drag"
+              className="w-8 h-8 flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] rounded-lg transition-colors no-drag"
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
-            <h1 className="text-lg font-semibold text-[var(--text-primary)]">
-              {resource?.manifest.name}
-            </h1>
-            <span className="px-2 py-0.5 text-xs font-medium rounded bg-[var(--bg-tertiary)] text-[var(--text-muted)]">
-              v{resource?.manifest.version}
-            </span>
-          </div>
-          <p className="text-sm text-[var(--text-muted)] ml-8">{locator}</p>
-        </div>
 
-        {/* Tabs */}
-        <div className="shrink-0 px-6 pt-4 border-b border-[var(--border-light)]">
-          <div className="flex gap-4">
+            {/* Icon + Name */}
+            <div className="flex items-center gap-3 flex-1 min-w-0">
+              <div className={cn(
+                "w-10 h-10 rounded-lg flex items-center justify-center shrink-0",
+                config.color
+              )}>
+                <Icon className="w-5 h-5" />
+              </div>
+
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <h1 className="text-lg font-semibold text-[var(--text-primary)] truncate">
+                    {resource?.manifest.name}
+                  </h1>
+                  <span className="px-2 py-0.5 text-xs font-medium rounded bg-[var(--bg-tertiary)] text-[var(--text-muted)] shrink-0">
+                    v{resource?.manifest.version}
+                  </span>
+                </div>
+                <p className="text-xs text-[var(--text-muted)] truncate mt-0.5">{locator}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Tabs */}
+          <div className="flex gap-2">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={cn(
-                  "pb-3 text-sm font-medium border-b-2 transition-colors",
+                  "px-3 py-1 text-xs font-medium rounded-full transition-all duration-200",
                   activeTab === tab.id
-                    ? "text-[var(--text-primary)] border-[#4A7FD4]"
-                    : "text-[var(--text-muted)] border-transparent hover:text-[var(--text-secondary)]"
+                    ? "bg-[var(--accent-primary)] text-white"
+                    : "bg-[var(--bg-tertiary)] text-[var(--text-secondary)] hover:bg-[var(--border-light)]"
                 )}
               >
                 {t(tab.labelKey)}
@@ -176,8 +210,14 @@ export function ResourceDetail({ locator, onBack }: ResourceDetailProps) {
           </div>
         </div>
 
+        {/* Divider */}
+        <div className="h-px bg-[var(--border-light)] mx-6" />
+
         {/* Tab Content */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto px-6 py-5">
+          <div className="flex gap-8">
+          {/* Main Content */}
+          <div className="flex-1 max-w-2xl">
           {activeTab === "resolve" && (
             <div className="space-y-6">
               {/* Parameters Form */}
@@ -186,34 +226,37 @@ export function ResourceDetail({ locator, onBack }: ResourceDetailProps) {
                   <h3 className="text-sm font-medium text-[var(--text-primary)]">
                     {t("resources.parameters")}
                   </h3>
-                  {Object.entries(schema!.properties!).map(([key, prop]) => {
-                    const p = prop as JSONSchemaProperty;
-                    return (
-                      <div key={key}>
-                        <label className="block text-sm font-medium text-[var(--text-secondary)] mb-1">
-                          {key}
-                          {schema!.required?.includes(key) && (
-                            <span className="text-red-500 ml-1">*</span>
+
+                  <div className="space-y-3">
+                    {Object.entries(schema!.properties!).map(([key, prop]) => {
+                      const p = prop as JSONSchemaProperty;
+                      return (
+                        <div key={key}>
+                          <label className="block text-sm text-[var(--text-secondary)] mb-1.5">
+                            {key}
+                            {schema!.required?.includes(key) && (
+                              <span className="text-[var(--accent-error)] ml-1">*</span>
+                            )}
+                          </label>
+                          {p.description && (
+                            <p className="text-xs text-[var(--text-muted)] mb-1.5">{p.description}</p>
                           )}
-                        </label>
-                        {p.description && (
-                          <p className="text-xs text-[var(--text-muted)] mb-1">{p.description}</p>
-                        )}
-                        <input
-                          type={p.type === "number" || p.type === "integer" ? "number" : "text"}
-                          value={args[key] || ""}
-                          onChange={(e) => setArgs({ ...args, [key]: e.target.value })}
-                          placeholder={p.default !== undefined ? String(p.default) : ""}
-                          className={cn(
-                            "w-full max-w-md h-9 px-3 rounded-lg",
-                            "bg-[var(--bg-secondary)] border border-[var(--border-light)]",
-                            "text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)]",
-                            "outline-none focus:border-[var(--border-medium)] transition-colors"
-                          )}
-                        />
-                      </div>
-                    );
-                  })}
+                          <input
+                            type={p.type === "number" || p.type === "integer" ? "number" : "text"}
+                            value={args[key] || ""}
+                            onChange={(e) => setArgs({ ...args, [key]: e.target.value })}
+                            placeholder={p.default !== undefined ? String(p.default) : ""}
+                            className={cn(
+                              "w-full h-10 px-3 rounded-lg",
+                              "bg-[var(--bg-card)] border border-[var(--border-light)]",
+                              "text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)]",
+                              "outline-none focus:border-[var(--border-medium)] transition-colors"
+                            )}
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               )}
 
@@ -222,10 +265,10 @@ export function ResourceDetail({ locator, onBack }: ResourceDetailProps) {
                 onClick={handleResolve}
                 disabled={resolveMutation.isPending}
                 className={cn(
-                  "flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors",
+                  "h-8 px-4 rounded-lg flex items-center gap-2 text-sm font-medium transition-colors",
                   resolveMutation.isPending
                     ? "bg-[var(--bg-tertiary)] text-[var(--text-muted)] cursor-not-allowed"
-                    : "bg-[#4A7FD4] text-white hover:bg-[#3D6BB3]"
+                    : "bg-[var(--accent-primary)] text-white hover:bg-[var(--accent-hover)]"
                 )}
               >
                 {resolveMutation.isPending ? (
@@ -238,7 +281,7 @@ export function ResourceDetail({ locator, onBack }: ResourceDetailProps) {
 
               {/* Error */}
               {executeError && (
-                <div className="p-3 bg-red-50 rounded-lg flex items-start gap-2">
+                <div className="p-3 bg-red-50 rounded-lg border border-red-100 flex items-start gap-2">
                   <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
                   <p className="text-sm text-red-600">{executeError}</p>
                 </div>
@@ -257,12 +300,12 @@ export function ResourceDetail({ locator, onBack }: ResourceDetailProps) {
                     >
                       {copied ? (
                         <>
-                          <Check className="w-3 h-3" />
+                          <Check className="w-3.5 h-3.5 text-[var(--accent-success)]" />
                           {t("common.copied")}
                         </>
                       ) : (
                         <>
-                          <Copy className="w-3 h-3" />
+                          <Copy className="w-3.5 h-3.5" />
                           {t("common.copy")}
                         </>
                       )}
@@ -272,7 +315,7 @@ export function ResourceDetail({ locator, onBack }: ResourceDetailProps) {
                     className={cn(
                       "p-4 rounded-lg overflow-x-auto",
                       "bg-[var(--bg-secondary)] border border-[var(--border-light)]",
-                      "text-sm text-[var(--text-primary)] font-mono whitespace-pre-wrap"
+                      "text-sm text-[var(--text-primary)] font-mono whitespace-pre-wrap leading-relaxed"
                     )}
                   >
                     {renderContent()}
@@ -283,44 +326,75 @@ export function ResourceDetail({ locator, onBack }: ResourceDetailProps) {
           )}
 
           {activeTab === "content" && (
-            <div className="text-sm text-[var(--text-muted)]">
-              {t("common.developingFeature")}
+            <div className="h-full flex flex-col items-center justify-center">
+              <div className="w-16 h-16 rounded-2xl bg-[var(--bg-tertiary)] flex items-center justify-center mb-4">
+                <FileText className="w-8 h-8 text-[var(--text-muted)]" />
+              </div>
+              <p className="text-sm text-[var(--text-muted)]">
+                {t("common.developingFeature")}
+              </p>
             </div>
           )}
 
           {activeTab === "versions" && (
-            <div className="text-sm text-[var(--text-muted)]">
-              {t("common.developingFeature")}
+            <div className="h-full flex flex-col items-center justify-center">
+              <div className="w-16 h-16 rounded-2xl bg-[var(--bg-tertiary)] flex items-center justify-center mb-4">
+                <Package className="w-8 h-8 text-[var(--text-muted)]" />
+              </div>
+              <p className="text-sm text-[var(--text-muted)]">
+                {t("common.developingFeature")}
+              </p>
             </div>
           )}
-        </div>
-      </div>
+          </div>
 
-      {/* Sidebar - About */}
-      <div className="w-64 shrink-0 border-l border-[var(--border-light)] bg-[var(--bg-secondary)] p-4 overflow-y-auto">
-        <h3 className="text-sm font-medium text-[var(--text-primary)] mb-4">
-          {t("resources.about")}
-        </h3>
+          {/* About Panel - 紧贴内容 */}
+          <div className="w-52 shrink-0">
+            <div className="sticky top-0 p-4 rounded-lg bg-[var(--bg-secondary)] border border-[var(--border-light)]">
+              <h3 className="text-sm font-medium text-[var(--text-primary)] mb-4">
+                {t("resources.about")}
+              </h3>
 
-        <div className="space-y-3 text-sm">
-          <div>
-            <span className="text-[var(--text-muted)]">{t("resources.type")}: </span>
-            <span className="text-[var(--text-primary)]">{resource?.manifest.type}</span>
-          </div>
-          <div>
-            <span className="text-[var(--text-muted)]">{t("resources.domain")}: </span>
-            <span className="text-[var(--text-primary)]">{resource?.manifest.domain}</span>
-          </div>
-          <div>
-            <span className="text-[var(--text-muted)]">{t("resources.version")}: </span>
-            <span className="text-[var(--text-primary)]">{resource?.manifest.version}</span>
-          </div>
-          {resource?.manifest.description && (
-            <div className="pt-2 border-t border-[var(--border-light)]">
-              <span className="text-[var(--text-muted)] block mb-1">{t("resources.description")}: </span>
-              <span className="text-[var(--text-primary)]">{resource.manifest.description}</span>
+              <div className="space-y-3 text-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-[var(--text-muted)]">{t("resources.type")}</span>
+                  <span className={cn(
+                    "px-2 py-0.5 text-xs font-medium rounded capitalize",
+                    resource?.manifest.type === "prompt" && "bg-amber-50 text-amber-700",
+                    resource?.manifest.type === "tool" && "bg-blue-50 text-blue-700",
+                    !["prompt", "tool"].includes(resource?.manifest.type || "") && "bg-[var(--bg-tertiary)] text-[var(--text-secondary)]"
+                  )}>
+                    {resource?.manifest.type}
+                  </span>
+                </div>
+
+                <div className="h-px bg-[var(--border-light)]" />
+
+                <div className="flex items-center justify-between">
+                  <span className="text-[var(--text-muted)]">{t("resources.domain")}</span>
+                  <span className="text-[var(--text-primary)]">{resource?.manifest.domain}</span>
+                </div>
+
+                <div className="h-px bg-[var(--border-light)]" />
+
+                <div className="flex items-center justify-between">
+                  <span className="text-[var(--text-muted)]">{t("resources.version")}</span>
+                  <span className="text-[var(--text-primary)] font-mono text-xs">{resource?.manifest.version}</span>
+                </div>
+
+                {resource?.manifest.description && (
+                  <>
+                    <div className="h-px bg-[var(--border-light)]" />
+                    <div>
+                      <span className="text-[var(--text-muted)] block mb-1">{t("resources.description")}</span>
+                      <p className="text-[var(--text-secondary)] leading-relaxed">{resource.manifest.description}</p>
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
-          )}
+          </div>
+          </div>
         </div>
       </div>
     </div>

@@ -95,8 +95,8 @@ export function ChatArea({ sessionId: _sessionId, sessionName }: ChatAreaProps) 
   return (
     <div className="flex-1 flex flex-col bg-[var(--bg-primary)]">
       {/* Header */}
-      <div className="h-12 px-4 flex items-center justify-between border-b border-[var(--border-light)] drag-region">
-        <span className="text-sm font-medium text-[var(--text-primary)]">{sessionName}</span>
+      <div className="h-[60px] px-4 flex items-center justify-between border-b border-[var(--border-light)] drag-region">
+        <span className="text-[15px] font-medium text-[var(--text-primary)]">{sessionName}</span>
         <button className="w-8 h-8 flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-tertiary)] rounded transition-colors">
           <MoreHorizontal className="w-5 h-5" />
         </button>
@@ -111,9 +111,9 @@ export function ChatArea({ sessionId: _sessionId, sessionName }: ChatAreaProps) 
           >
             <div
               className={cn(
-                "max-w-[70%] px-3 py-2 rounded-lg text-sm",
+                "max-w-[70%] px-3 py-2 rounded-lg text-[15px]",
                 message.role === "user"
-                  ? "bg-[#4A7FD4] text-white"
+                  ? "bg-[var(--bg-selected)] text-[var(--text-primary)]"
                   : "bg-white text-[var(--text-primary)] border border-[var(--border-light)]"
               )}
             >
@@ -149,7 +149,7 @@ export function ChatArea({ sessionId: _sessionId, sessionName }: ChatAreaProps) 
             onChange={(e) => setInputValue(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder={t("sessions.inputPlaceholder")}
-            className="flex-1 py-2 px-3 bg-transparent text-sm text-[var(--text-primary)] placeholder:text-[var(--text-muted)] outline-none resize-none"
+            className="flex-1 py-2 px-3 bg-transparent text-[15px] text-[var(--text-primary)] placeholder:text-[var(--text-muted)] outline-none resize-none"
           />
           <div className="flex justify-end">
             <button
@@ -158,7 +158,7 @@ export function ChatArea({ sessionId: _sessionId, sessionName }: ChatAreaProps) 
               className={cn(
                 "h-8 px-4 rounded text-sm font-medium transition-colors",
                 inputValue.trim()
-                  ? "bg-[#4A7FD4] text-white hover:bg-[#3D6BB3]"
+                  ? "bg-[var(--accent-primary)] text-white hover:bg-[var(--accent-hover)]"
                   : "bg-[var(--bg-tertiary)] text-[var(--text-muted)] cursor-not-allowed"
               )}
             >

@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Settings, Database, Key, Info, ChevronDown } from "lucide-react";
+import { Settings, Database, Key, Info, Palette, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { DesignSystemPreview } from "@/components/settings/DesignSystemPreview";
 
-type SettingsSection = "general" | "storage" | "api" | "about";
+type SettingsSection = "general" | "storage" | "api" | "about" | "design";
 
 const languages = [
   { code: "zh-CN", label: "简体中文" },
@@ -20,6 +21,7 @@ function SettingsPage() {
     { id: "storage" as SettingsSection, icon: Database, label: t("settings.storage", "数据存储") },
     { id: "api" as SettingsSection, icon: Key, label: t("settings.apiKeys", "API 密钥") },
     { id: "about" as SettingsSection, icon: Info, label: t("settings.about") },
+    { id: "design" as SettingsSection, icon: Palette, label: "设计系统" },
   ];
 
   const currentLanguage = languages.find((l) => l.code === i18n.language) || languages[0];
@@ -93,6 +95,8 @@ function SettingsPage() {
         return renderGeneralSettings();
       case "about":
         return renderAboutSettings();
+      case "design":
+        return <DesignSystemPreview />;
       default:
         return (
           <p className="text-[var(--text-muted)]">
@@ -106,8 +110,8 @@ function SettingsPage() {
     <div className="h-full flex">
       {/* Sidebar - Settings Nav */}
       <div className="w-[260px] bg-[var(--bg-secondary)] border-r border-[var(--border-light)] flex flex-col">
-        <div className="p-3 border-b border-[var(--border-light)] drag-region">
-          <h2 className="text-sm font-medium text-[var(--text-primary)]">{t("settings.title")}</h2>
+        <div className="h-[60px] px-3 flex items-center border-b border-[var(--border-light)] drag-region">
+          <h2 className="text-[15px] font-medium text-[var(--text-primary)]">{t("settings.title")}</h2>
         </div>
 
         <div className="flex-1 overflow-y-auto p-2">
@@ -134,16 +138,26 @@ function SettingsPage() {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 bg-[var(--bg-primary)] p-6 drag-region">
-        <div className="max-w-2xl">
-          <h1 className="text-xl font-medium text-[var(--text-primary)] mb-6">
-            {settingsSections.find((s) => s.id === activeSection)?.label}
-          </h1>
-
-          <div className="bg-[var(--bg-card)] rounded-lg border border-[var(--border-light)] p-4">
+      <div className="flex-1 bg-[var(--bg-primary)] overflow-y-auto">
+        {activeSection === "design" ? (
+          <div className="p-6">
+            <h1 className="text-xl font-medium text-[var(--text-primary)] mb-6 drag-region">
+              设计系统
+            </h1>
             {renderContent()}
           </div>
-        </div>
+        ) : (
+          <div className="p-6">
+            <div className="max-w-2xl">
+              <h1 className="text-xl font-medium text-[var(--text-primary)] mb-6 drag-region">
+                {settingsSections.find((s) => s.id === activeSection)?.label}
+              </h1>
+              <div className="bg-[var(--bg-card)] rounded-lg border border-[var(--border-light)] p-4">
+                {renderContent()}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

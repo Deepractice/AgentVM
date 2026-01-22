@@ -57,7 +57,7 @@ export function SessionList({ selectedId, onSelect }: SessionListProps) {
   return (
     <div className="w-[260px] h-full bg-[var(--bg-secondary)] border-r border-[var(--border-light)] flex flex-col">
       {/* Search Bar */}
-      <div className="h-12 px-3 flex items-center gap-2 border-b border-[var(--border-light)] drag-region">
+      <div className="h-[60px] px-3 flex items-center gap-2 border-b border-[var(--border-light)] drag-region">
         <div className="flex-1 flex items-center gap-2 px-3 py-1.5 bg-[var(--bg-tertiary)] rounded-md">
           <Search className="w-4 h-4 text-[var(--text-muted)]" />
           <input
@@ -78,29 +78,29 @@ export function SessionList({ selectedId, onSelect }: SessionListProps) {
             key={session.id}
             onClick={() => onSelect(session.id)}
             className={cn(
-              "h-16 px-3 flex items-center gap-3 cursor-pointer transition-colors",
+              "h-[68px] px-3 flex items-center gap-3 cursor-pointer transition-colors",
               selectedId === session.id
                 ? "bg-[var(--bg-tertiary)]"
-                : "hover:bg-[var(--bg-tertiary)]/50"
+                : "hover:bg-[var(--bg-tertiary)]"
             )}
           >
             {/* Avatar */}
-            <div className="w-10 h-10 rounded-md bg-[var(--accent-primary)] flex items-center justify-center text-white text-sm font-medium shrink-0">
+            <div className="w-11 h-11 rounded-md bg-[var(--accent-primary)] flex items-center justify-center text-white text-[15px] font-medium shrink-0">
               {session.name.slice(0, 1)}
             </div>
 
             {/* Content */}
             <div className="flex-1 min-w-0 py-1">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium text-[var(--text-primary)] truncate">
+                <span className="text-[15px] font-medium text-[var(--text-primary)] truncate">
                   {session.name}
                 </span>
-                <span className="text-xs text-[var(--text-muted)] shrink-0 ml-2">
+                <span className="text-[13px] text-[var(--text-muted)] shrink-0 ml-2">
                   {session.time}
                 </span>
               </div>
               <div className="flex items-center justify-between mt-1">
-                <span className="text-xs text-[var(--text-muted)] truncate">
+                <span className="text-[13px] text-[var(--text-muted)] truncate">
                   {session.lastMessage}
                 </span>
                 {session.unread > 0 && (

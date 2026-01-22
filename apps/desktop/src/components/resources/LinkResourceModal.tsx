@@ -128,7 +128,7 @@ export function LinkResourceModal({ onClose }: LinkResourceModalProps) {
           {state === "success" ? (
             <button
               onClick={onClose}
-              className="h-8 px-4 rounded text-sm font-medium bg-[#4A7FD4] text-white hover:bg-[#3D6BB3] transition-colors"
+              className="h-8 px-4 rounded text-sm font-medium bg-[var(--accent-primary)] text-white hover:bg-[var(--accent-hover)] transition-colors"
             >
               {t("common.done")}
             </button>
@@ -146,7 +146,7 @@ export function LinkResourceModal({ onClose }: LinkResourceModalProps) {
                 className={cn(
                   "h-8 px-4 rounded text-sm font-medium transition-colors flex items-center gap-2",
                   folderPath && state !== "linking"
-                    ? "bg-[#4A7FD4] text-white hover:bg-[#3D6BB3]"
+                    ? "bg-[var(--accent-primary)] text-white hover:bg-[var(--accent-hover)]"
                     : "bg-[var(--bg-tertiary)] text-[var(--text-muted)] cursor-not-allowed"
                 )}
               >
